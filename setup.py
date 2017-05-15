@@ -52,7 +52,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'test', 'data']),
+    packages=find_packages(exclude=['contrib', 'docs', 'test']),
 
     # test_suite=[],
     # Alternatively, if you want to distribute just a my_module.py, uncomment
@@ -82,7 +82,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     # package_data={"spectrum_overload": ["data/*.fits"]},
-    package_data={"data": ["data/Baraffe20*/*.dat"]},
+    package_data={"baraffe_tables": ["data/Baraffe20*/*.dat"]},
 
     data_files=[],
 

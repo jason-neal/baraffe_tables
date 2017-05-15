@@ -1,5 +1,3 @@
 argparse
 numpy
 astropy
-astroquery
-typing
