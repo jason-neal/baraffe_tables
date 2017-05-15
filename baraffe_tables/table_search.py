@@ -1,5 +1,6 @@
 """Code to obtain and find row in Baraffe tables."""
 import numpy as np
+import pkg_resources
 from typing import Tuple, List, Dict
 
 
@@ -29,7 +30,7 @@ def age_table(age: float, model: str="2003") -> Tuple[Dict[str, List[float]], Li
     if model in '2003':
         modelages = ["0.001", "0.005", "0.010", "0.050", "0.100", "0.120",
                      "0.500", "1.000", "5.000", "10.000"]
-        base_name = "./Baraffe2003/BaraffeCOND2003-"
+        base_name = "data/Baraffe2003/BaraffeCOND2003-"
         skiprows = 18
         cols = ["M/Ms", "Teff", "L/Ls", "g", "R", "Mv",
                 "Mr", "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
@@ -40,7 +41,7 @@ def age_table(age: float, model: str="2003") -> Tuple[Dict[str, List[float]], Li
                      "0.050", "0.080", "0.100", "0.120", "0.200", "0.300",
                      "0.400", "0.500", "0.625", "0.800", "1.000", "2.000",
                      "3.000", "4.000", "5.000", "8.000", "10.000"]
-        base_name = "./Baraffe2015/BaraffeBHAC15-"
+        base_name = "data/Baraffe2015/BaraffeBHAC15-"
         skiprows = 22
         cols = ["M/Ms", "Teff", "L/Ls", "g", "R/Rs", "Li/Li0", "Mv", "Mr",
                 "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
@@ -49,6 +50,7 @@ def age_table(age: float, model: str="2003") -> Tuple[Dict[str, List[float]], Li
     model_age = min(modelages, key=lambda x: abs(float(x) - age))  # Closest one
     model_id = "p".join(str(model_age).split("."))   # Replace . with p in number str
     model_name = base_name + model_id + "Gyr.dat"
+    model_name = pkg_resources.resource_filename("baraffe_tables", model_name)
 
     model_data = np.loadtxt(model_name, skiprows=skiprows, unpack=False)
     model_data = model_data.T

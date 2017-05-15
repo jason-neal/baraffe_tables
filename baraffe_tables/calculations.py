@@ -4,7 +4,7 @@ from typing import Dict, List, Any
 try:
     from db_queries import get_temperature
 except:
-    from Baraffe_tables.db_queries import get_temperature
+    from baraffe_tables.db_queries import get_temperature
 
 
 def flux_mag_ratio(mag1: float, mag2: float) -> float:

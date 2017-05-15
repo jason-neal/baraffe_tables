@@ -35,9 +35,9 @@ try:
     from table_search import mass_table_search
     from calculations import calculate_flux_ratio, calculate_stellar_radius
 except:
-    from Baraffe_tables.db_queries import get_stellar_params
-    from Baraffe_tables.table_search import mass_table_search
-    from Baraffe_tables.calculations import calculate_flux_ratio, calculate_stellar_radius
+    from baraffe_tables.db_queries import get_stellar_params
+    from baraffe_tables.table_search import mass_table_search
+    from baraffe_tables.calculations import calculate_flux_ratio, calculate_stellar_radius
 
 
 def _parser() -> object:

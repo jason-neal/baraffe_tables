@@ -26,9 +26,9 @@ try:
     from table_search import magnitude_table_search
     from calculations import calculate_companion_magnitude
 except:
-    from Baraffe_tables.db_queries import get_stellar_params
-    from Baraffe_tables.table_search import magnitude_table_search
-    from Baraffe_tables.calculations import calculate_companion_magnitude
+    from baraffe_tables.db_queries import get_stellar_params
+    from baraffe_tables.table_search import magnitude_table_search
+    from baraffe_tables.calculations import calculate_companion_magnitude
 
 
 def _parser() -> object:
