@@ -70,7 +70,7 @@ def test_calculate_flux_ratio():
     assert np.allclose(flux_ratios["K"], 100)
 
 
-# @pytest.mark.xfail
+@pytest.mark.xfail
 def test_get_sweet_cat_temp():
     """Test getting from sweet-cat."""
     # hd number in SweetCat
