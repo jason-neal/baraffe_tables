@@ -1,6 +1,8 @@
 """Calculations for flux ratios."""
+from typing import Any, Dict, List
+
 import numpy as np
-from typing import Dict, List, Any
+
 try:
     from db_queries import get_temperature
 except:

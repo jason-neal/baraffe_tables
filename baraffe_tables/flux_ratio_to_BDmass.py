@@ -16,10 +16,12 @@ age: float
 
 """
 from __future__ import division, print_function
-import sys
+
 import argparse
+import sys
 from typing import List, Optional
-from astropy.constants import M_sun, M_jup
+
+from astropy.constants import M_jup, M_sun
 
 try:
     from db_queries import get_stellar_params

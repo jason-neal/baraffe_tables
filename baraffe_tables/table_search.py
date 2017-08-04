@@ -1,7 +1,8 @@
 """Code to obtain and find row in Baraffe tables."""
+from typing import Dict, List, Tuple
+
 import numpy as np
 import pkg_resources
-from typing import Tuple, List, Dict
 
 
 def age_table(age: float, model: str="2003") -> Tuple[Dict[str, List[float]], List[str]]:

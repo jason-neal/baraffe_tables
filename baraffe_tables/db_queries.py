@@ -1,8 +1,9 @@
 """Access Databases."""
+from typing import Any, Optional, Union
+
 import numpy as np
-from PyAstronomy import pyasl
 from astroquery.simbad import Simbad
-from typing import Any, Union, Optional
+from PyAstronomy import pyasl
 
 
 def get_stellar_params(star_name: str) -> Any:

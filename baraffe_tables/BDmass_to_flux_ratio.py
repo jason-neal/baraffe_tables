@@ -25,11 +25,14 @@ model: str
 """
 # TODO: Interpolate between tables?
 from __future__ import division, print_function
-import sys
+
 import argparse
-import numpy as np
+import sys
 from typing import List, Optional
-from astropy.constants import M_sun, M_jup
+
+import numpy as np
+from astropy.constants import M_jup, M_sun
+
 try:
     from db_queries import get_stellar_params
     from table_search import mass_table_search

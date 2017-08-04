@@ -1,17 +1,21 @@
 """Test companion/flux ratio codes with baraffe tables."""
 import sys
-import pytest
+
 import numpy as np
 import pkg_resources
+import pytest
 from astropy.constants import M_jup, M_sun
 
-from baraffe_tables.BDmass_to_flux_ratio import main as mass_main
-from baraffe_tables.flux_ratio_to_BDmass import main as ratio_main
 from baraffe_tables.BDmass_to_flux_ratio import _parser as mass_parser
+from baraffe_tables.BDmass_to_flux_ratio import main as mass_main
+from baraffe_tables.calculations import (calculate_companion_magnitude,
+                                         calculate_flux_ratio, flux_mag_ratio)
+from baraffe_tables.db_queries import (get_stellar_params, get_sweet_cat_temp,
+                                       get_temperature)
 from baraffe_tables.flux_ratio_to_BDmass import _parser as ratio_parser
-from baraffe_tables.table_search import mass_table_search, magnitude_table_search, age_table
-from baraffe_tables.db_queries import get_sweet_cat_temp, get_stellar_params, get_temperature
-from baraffe_tables.calculations import flux_mag_ratio, calculate_flux_ratio, calculate_companion_magnitude
+from baraffe_tables.flux_ratio_to_BDmass import main as ratio_main
+from baraffe_tables.table_search import (age_table, magnitude_table_search,
+                                         mass_table_search)
 
 org_sysargv = sys.argv
 
