@@ -3,12 +3,10 @@ python:
   - "3.5"
   - "3.6"
 
-# command to install dependencies
-# Setup anaconda
 before_install:
   # http://conda.pydata.org/docs/travis.html
-  - sudo apt-get update
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - travis_retry sudo apt-get update
+  - travis_retry wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
@@ -23,14 +21,14 @@ cache:
 install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy astropy
   - source activate test-environment
-  - pip install pyastronomy
+  - travis_retry pip install pyastronomy
   - touch /home/travis/.pyaConfigWhere && echo "/home/travis/build/jason-neal/PyA_data" >> /home/travis/.pyaConfigWhere
   - mkdir /home/travis/build/jason-neal/PyA_data
 
-  - python setup.py install
+  - travis_retry  pip install -r requirements.txt
+  - travis_retry pip install pytest-cov python-coveralls codeclimate-test-reporter codacy-coverage
 
-  - pip install pytest-cov python-coveralls codeclimate-test-reporter codacy-coverage
-  - pip install -r requirements.txt
+  - python setup.py install
 
 script:
   - pytest --cov=baraffe_tables/ --cov-report term-missing --durations 5
