@@ -15,24 +15,28 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
 install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy astropy
   - source activate test-environment
   - pip install pyastronomy
-  # Configure pyastronomy data location
   - touch /home/travis/.pyaConfigWhere && echo "/home/travis/build/jason-neal/PyA_data" >> /home/travis/.pyaConfigWhere
   - mkdir /home/travis/build/jason-neal/PyA_data
-  
+
   - python setup.py install
 
-  - pip install pytest-cov python-coveralls codeclimate-test-reporter
+  - pip install pytest-cov python-coveralls codeclimate-test-reporter codacy-coverage
   - pip install -r requirements.txt
-# command to run tests
+
 script:
-  # - py.test -cov coveralls --cov-report term-missing
-  # - py.test --cov=spectrum_overload spectrum_overload/ --cov-report term-missing
   - pytest --cov=baraffe_tables/ --cov-report term-missing --durations 5
+  - coverage xml
 
 after_success:
   - coveralls
   - codeclimate-test-reporter
+  - python-codacy-coverage -r coverage.xml
