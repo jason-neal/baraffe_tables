@@ -2,6 +2,12 @@ language: python
 python:
   - "3.5"
   - "3.6"
+  - nightly
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - python: nightly
 
 # command to install dependencies
 # Setup anaconda
@@ -22,7 +28,7 @@ install:
   # Configure pyastronomy data location
   - touch /home/travis/.pyaConfigWhere && echo "/home/travis/build/jason-neal/PyA_data" >> /home/travis/.pyaConfigWhere
   - mkdir /home/travis/build/jason-neal/PyA_data
-  
+
   - python setup.py install
 
   - pip install pytest-cov python-coveralls codeclimate-test-reporter
