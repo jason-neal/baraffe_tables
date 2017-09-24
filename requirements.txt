@@ -1,4 +1,4 @@
 argparse==1.4.0
-numpy
+numpy==1.13.1
 astropy
 astroquery
