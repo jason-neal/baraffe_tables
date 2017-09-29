@@ -27,12 +27,12 @@ cache:
 install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy astropy
   - source activate test-environment
-  - travis_retry pip install pyastronomy
+
   - touch /home/travis/.pyaConfigWhere && echo "/home/travis/build/jason-neal/PyA_data" >> /home/travis/.pyaConfigWhere
   - mkdir /home/travis/build/jason-neal/PyA_data
 
-  - travis_retry  pip install -r requirements.txt
-  - travis_retry pip install pytest-cov python-coveralls codeclimate-test-reporter codacy-coverage
+  - travis_retry  pip install -r requirements/requirements.txt
+  - travis_retry pip install -r requirements/test.txt
 
   - python setup.py install
 
