@@ -1,4 +1,4 @@
-argparse
-numpy
-astropy
-astroquery
+argparse==1.4.0
+numpy==1.13.1
+astropy==2.0.2
+astroquery==0.3.6.post2

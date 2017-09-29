@@ -9,36 +9,38 @@ matrix:
   allow_failures:
     - python: nightly
 
-# command to install dependencies
-# Setup anaconda
 before_install:
   # http://conda.pydata.org/docs/travis.html
-  - sudo apt-get update
-  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - travis_retry sudo apt-get update
+  - travis_retry wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+
 install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy astropy
   - source activate test-environment
-  - pip install pyastronomy
-  # Configure pyastronomy data location
+  - travis_retry pip install pyastronomy
   - touch /home/travis/.pyaConfigWhere && echo "/home/travis/build/jason-neal/PyA_data" >> /home/travis/.pyaConfigWhere
   - mkdir /home/travis/build/jason-neal/PyA_data
 
+  - travis_retry  pip install -r requirements.txt
+  - travis_retry pip install pytest-cov python-coveralls codeclimate-test-reporter codacy-coverage
+
   - python setup.py install
 
-  - pip install pytest-cov python-coveralls codeclimate-test-reporter
-  - pip install -r requirements.txt
-# command to run tests
 script:
-  # - py.test -cov coveralls --cov-report term-missing
-  # - py.test --cov=spectrum_overload spectrum_overload/ --cov-report term-missing
   - pytest --cov=baraffe_tables/ --cov-report term-missing --durations 5
+  - coverage xml
 
 after_success:
   - coveralls
   - codeclimate-test-reporter
+  - python-codacy-coverage -r coverage.xml
