@@ -30,7 +30,7 @@ def flux_mag_ratio(mag1: float, mag2: float) -> float:
     """
     if isinstance(mag1, (int, float)) and isinstance(mag2, (int, float)):
         # return 2.512**(mag2 - mag1)  # Approximation
-        return 10**(-0.4 * (mag1 - mag2))
+        return 10 ** (-0.4 * (mag1 - mag2))
     else:
         print(type(mag1), type(mag2))
         raise ValueError("Magnitudes given were not floats or ints. Mag1 = {}, Mag2 = {}".format(mag1, mag2))
@@ -86,15 +86,15 @@ def calculate_stellar_radius(star_params: Any) -> float:
     star_name = star_params['name'][0]
     teff_star = get_temperature(star_name, star_params)
 
-    Ts_T = 5800. / teff_star              # Temperature ratio
-    Dm = 4.83 - star_params["FLUX_V"][0]     # Differnce of aboslute magnitude
-    L_Ls = 2.51 ** Dm                     # Luminosity ratio
-    R_Rs = (Ts_T)**2 * np.sqrt(L_Ls)      # Raidus of Star in Solar Radii
+    Ts_T = 5800. / teff_star  # Temperature ratio
+    Dm = 4.83 - star_params["FLUX_V"][0]  # Differnce of aboslute magnitude
+    L_Ls = 2.51 ** Dm  # Luminosity ratio
+    R_Rs = (Ts_T) ** 2 * np.sqrt(L_Ls)  # Raidus of Star in Solar Radii
 
-    return R_Rs   # Radius of star in solar radii
+    return R_Rs  # Radius of star in solar radii
 
 
-def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: List[str]=["K"]) -> Dict[str, float]:
+def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: List[str] = ["K"]) -> Dict[str, float]:
     """Calculate companion magnitude from flux ratio.
 
     Using the equation m - n = -2.5 * log_10(F_m / F_n).

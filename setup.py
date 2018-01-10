@@ -24,7 +24,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version="0.1",
 
-    description='Access the baraffe evolutionary tables.',
+    description='Access the Baraffe evolutionary tables.',
     long_description=long_description,
 
     # The project's main homepage.

@@ -3,12 +3,12 @@
 
 Uses stellar parameter databases to find host star parameters. The
 magnitude of the low mass companion from the provided flux ratio and the
-coresponding mass is looked up in the Barraffe evolutionary models.
+corresponding mass is looked up in the Baraffe evolutionary models.
 
 Inputs
 ------
 Star name: str
-    Stellar idenification number. eg. HD30501
+    Stellar identification number. eg. HD30501
 flux_ratio: float
     Flux ratio between host and companion.
 age: float
@@ -60,7 +60,7 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
     Parameters
     ----------
     star_name: str
-        Stellar idenification number. eg. HD30501
+        Stellar identification number. eg. HD30501
     flux_ratio: float
         Flux ratio for the system (F_companion/F_host).
     stellar_age: float
@@ -68,16 +68,16 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
     bands: str
         Wavelength band to use. (optional)
     model: int (optional)
-       Year of Barraffe model to use [2003 (default), 2015].
+       Year of Baraffe model to use [2003 (default), 2015].
 
     """
-    Jup_sol_mass = (M_sun / M_jup).value  # Jupiters in 1 M_sol
+    Jup_sol_mass = (M_sun / M_jup).value  # Jupiter mass in Sun
 
     if (bands is None) or ("All" in bands):
         bands = ["H", "J", "K"]
 
     # Obtain Stellar parameters from astroquery
-    star_params = get_stellar_params(star_name)  # returns a astroquesry result table
+    star_params = get_stellar_params(star_name)  # returns a astroquery result table
 
     # Calculate Magnitude J, H and K bands magnitude for this flux ratio
     magnitudes = calculate_companion_magnitude(star_params, flux_ratio, bands=bands)

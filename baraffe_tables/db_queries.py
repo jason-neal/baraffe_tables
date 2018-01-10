@@ -19,9 +19,9 @@ def get_stellar_params(star_name: str) -> Any:
     result_table: votable, dict-like
 
     """
-    # return Magnitudes, parralax, Temp
+    # return Magnitudes, parallax, Temp
     customSimbad = Simbad()
-    # Can add more fluxes here if need to extend flux ranges. Although K is the simbad limit.
+    # Can add more fluxes here if need to extend flux ranges. Although K is the Simbad limit.
     # if want higher need to search for Wise band in VISIER probably.
     customSimbad.add_votable_fields('parallax', 'sp', 'fluxdata(B)',
                                     'fluxdata(V)', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)',
@@ -69,7 +69,7 @@ def get_sweet_cat_temp(star_name: str) -> Union[bool, float, int]:
         return False
 
 
-def get_temperature(star_name: str, star_params: Optional[Any]=None) -> float:
+def get_temperature(star_name: str, star_params: Optional[Any] = None) -> float:
     """Find temperature of the star multiple ways.
 
     1st - Try Fe_H_Teff param from Simbad.
@@ -113,7 +113,7 @@ def get_temperature(star_name: str, star_params: Optional[Any]=None) -> float:
 
 
 def calculate_bv_temp(b_mag: float, v_mag: float) -> float:
-    """Calcualte Stellar Temperature from B-V magnitudes.
+    """Calculate Stellar Temperature from B-V magnitudes.
 
     Parameters
     ----------

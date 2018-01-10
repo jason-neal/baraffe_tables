@@ -5,14 +5,14 @@ Calculates the flux/contrast ratio between a host star and a brown dwarf of a sp
 
 This script uses the SIMBAD database to obtain the host star parameters, such as magnitude and age.
 The companion/brown dwarf mass is a given input (in Mjup) and  is used to obtain the band magnitudes
-of the companion from the Barraffe tables.
+of the companion from the Baraffe tables.
 
 The magnitude difference between the host and companion are used to caluate the flux/contrast ratio.
 
 Inputs
 ------
 Star name: str
-    Stellar idenification number. eg. HD30501
+    Stellar identification number. eg. HD30501
 companion_mass: float
     Mass of companion in Jupiter masses
 age: float
@@ -20,7 +20,7 @@ age: float
 bands: list of str
     Spectral bands to obtain ratio.
 model: str
-    Choose between the 2003 and 2015 Barraffe modeling.
+    Choose between the 2003 and 2015 Baraffe modeling.
 
 """
 # TODO: Interpolate between tables?
@@ -62,14 +62,14 @@ def _parser() -> object:
     return args
 
 
-def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optional[List[str]]=None,
-         model: str="2003", area_ratio: bool=False, paper: bool=False) -> int:
+def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optional[List[str]] = None,
+         model: str = "2003", area_ratio: bool = False, paper: bool = False) -> int:
     """Compute flux/contrast ratio between a stellar host and companion.
 
     Parameters
     ----------
     star_name: str
-        Stellar idenification number. eg. HD30501.
+        Stellar identification number. eg. HD30501.
     companion_mass: float
         Mass of companion in Jupiter masses.
     stellar_age: float
@@ -77,20 +77,20 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
     bands: list of str
         Spectral bands to obtain ratio.
     model: str (optional)
-        Year of Barraffe model to use [2003 (default), 2015].
+        Year of Baraffe model to use [2003 (default), 2015].
     area_ratio: bool default=False
-        Perform simple radius and area comparions calculations.
+        Perform simple radius and area comparisons calculations.
     paper: bool
-        Print other parmaters need for paper table.
+        Print other parameters need for paper table.
 
     """
     if (bands is None) or ("All" in bands):
         bands = ["J", "H", "K"]
 
     # Obtain Stellar parameters from astroquery
-    star_params = get_stellar_params(star_name)  # returns a astroquesry result table
+    star_params = get_stellar_params(star_name)  # returns a astroquery result table
 
-    companion_mass_solar = companion_mass * (M_jup / M_sun).value    # transform to solar mass for table search
+    companion_mass_solar = companion_mass * (M_jup / M_sun).value  # transform to solar mass for table search
 
     # Get parameters for this mass and age
     companion_params = mass_table_search(companion_mass_solar, stellar_age, model=model)
@@ -100,7 +100,7 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
     # Print flux ratios using a generator
     print("\nFlux ratios:")
     print_generator = (("{0!s} band star/companion Flux ratio = {1:4.2f}, "
-                       " >>> companion/star Flux ratio = {2:0.4f}").format(key, val, 1. / val)
+                        " >>> companion/star Flux ratio = {2:0.4f}").format(key, val, 1. / val)
                        for key, val in flux_ratios.items() if key in bands)
 
     for print_string in print_generator:
@@ -116,13 +116,15 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         print("Host radius         = {} R_sun".format(Rstar))
         print("companion radius    = {} R_sun".format(np.round(companion_params["R"], 4)))
         print("Radius Ratio of companion/star    = {}".format(Rcomp_Rstar))
-        print("Area Ratio of companion/star      = {}".format(Rcomp_Rstar**2))
+        print("Area Ratio of companion/star      = {}".format(Rcomp_Rstar ** 2))
 
     if paper:
         print(companion_params)
         print(r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\".format(star_name, star_params["FLUX_K"][0],
-                                                                                    companion_mass, companion_params["Teff"],
-                                                                                    companion_params["Mk"], flux_ratios["K"]))
+                                                                                    companion_mass,
+                                                                                    companion_params["Teff"],
+                                                                                    companion_params["Mk"],
+                                                                                    flux_ratios["K"]))
 
     return 0
 
