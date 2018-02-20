@@ -63,8 +63,8 @@ def test_flux_mag_ratio():
 
 def test_calculate_flux_ratio():
     """Test return of a dict with the 3 overlapping values."""
-    star_params = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}   # Names from simbad
-    companion_params = {"Mj": 6, "Mh": 11, "Mk": 7}      # Names from Baraffe
+    star_params = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}  # Names from simbad
+    companion_params = {"Mj": 6, "Mh": 11, "Mk": 7}  # Names from Baraffe
 
     flux_ratios = calculate_flux_ratio(star_params, companion_params, bands=["J", "H", "K"])
     assert isinstance(flux_ratios, dict)
@@ -121,10 +121,10 @@ def test_get_temerature_examples():
         object at 0x7fe4e509b438>: Failed to establish a new connection: [Errno -3] Temporary failure in name
         resolution', )).
     """
-    star = "HD12116"   # Has zero temp in simbad (Check this is not used)
+    star = "HD12116"  # Has zero temp in simbad (Check this is not used)
     assert get_temperature(star) != 0
 
-    star_simbad = "HD215909"    # has a temperature in simbad
+    star_simbad = "HD215909"  # has a temperature in simbad
     simbad_temp = 4328
     assert get_temperature(star_simbad) == simbad_temp
 
@@ -155,8 +155,8 @@ def test_get_stellar_params():
     assert params["FLUX_V"] == 8.01
     assert params["FLUX_K"] == 6.530
     assert params["PLX_VALUE"][0] == 13.83  # parallax
-    assert params['Fe_H_log_g'] == 4.19     # log g
-    assert params['Fe_H_Fe_H'] == 0.16      # metalicity
+    assert params['Fe_H_log_g'] == 4.19  # log g
+    assert params['Fe_H_Fe_H'] == 0.16  # metalicity
 
 
 # Test Flux ratio to Mass
@@ -238,7 +238,7 @@ def test_bad_model_age_table(model):
 def test_calculate_comp_magnitude():
     """Test t returns values fr all bands given."""
     bands = ["H", "J", "K"]
-    star_vals = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}   # Names from simbad
+    star_vals = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}  # Names from simbad
     magnitudes = calculate_companion_magnitude(star_vals, 0.001, bands)
 
     assert isinstance(magnitudes, dict)
@@ -311,7 +311,7 @@ def test_magnitude_table_search_errors():
 
     with pytest.raises(ValueError):
         # More than one band not allowed
-        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band=("K", ), model="2015")
+        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band=("K",), model="2015")
 
     with pytest.raises(ValueError):
         # More then one band not allowed
@@ -386,7 +386,7 @@ def test_failing_ratio_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        ratio_parser()   # ratio is not a number
+        ratio_parser()  # ratio is not a number
 
     sys.argv = []
     test_args = "pytest HD30501 0.001 5 -b H K -m 2015 -z 4".split()  # unknown parameter -z
@@ -394,7 +394,7 @@ def test_failing_ratio_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        ratio_parser()   # unknown parameter -z
+        ratio_parser()  # unknown parameter -z
 
     # Invalid choice of band
     sys.argv = []
@@ -403,7 +403,7 @@ def test_failing_ratio_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        ratio_parser()   # SystemExit
+        ratio_parser()  # SystemExit
 
     sys.argv = org_sysargv
 
@@ -418,7 +418,7 @@ def test_failing_mass_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        mass_parser()   # ratio is not a number
+        mass_parser()  # ratio is not a number
 
     sys.argv = []
     test_args = "pytest HD30501 mass 5 -b H K -m 2003-z 4".split()  # unknown parameter -z
@@ -426,7 +426,7 @@ def test_failing_mass_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        mass_parser()   # unknown parameter -z
+        mass_parser()  # unknown parameter -z
 
     # Invalid choice of band
     sys.argv = []
@@ -435,6 +435,6 @@ def test_failing_mass_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        mass_parser()   # SystemExit
+        mass_parser()  # SystemExit
 
     sys.argv = org_sysargv
