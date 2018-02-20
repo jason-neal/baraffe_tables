@@ -5,7 +5,7 @@ import numpy as np
 import pkg_resources
 
 
-def age_table(age: float, model: str="2003") -> Tuple[Dict[str, List[float]], List[str]]:
+def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], List[str]]:
     """Determine the correct Baraffe table to load.
 
     Parameters
@@ -64,7 +64,7 @@ def age_table(age: float, model: str="2003") -> Tuple[Dict[str, List[float]], Li
     return data_dict, cols
 
 
-def mass_table_search(companion_mass: float, age: float, model: str="2003") -> Dict[str, float]:
+def mass_table_search(companion_mass: float, age: float, model: str = "2003") -> Dict[str, float]:
     """Search Baraffe tables to find the companion entry given a mass value.
 
     Parameters
@@ -90,8 +90,8 @@ def mass_table_search(companion_mass: float, age: float, model: str="2003") -> D
     return companion_parameters  # as a dictionary
 
 
-def magnitude_table_search(magnitudes: Dict[str, float], age: float, band: str="K",
-                           model: str="2003") -> Dict[str, float]:
+def magnitude_table_search(magnitudes: Dict[str, float], age: float, band: str = "K",
+                           model: str = "2003") -> Dict[str, float]:
     """Search Baraffe tables to find the companion entry given a band magnitude value.
 
     Parameters
