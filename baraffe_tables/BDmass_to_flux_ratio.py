@@ -37,7 +37,7 @@ try:
     from db_queries import get_stellar_params
     from table_search import mass_table_search
     from calculations import calculate_flux_ratio, calculate_stellar_radius
-except:
+except ImportError:
     from baraffe_tables.db_queries import get_stellar_params
     from baraffe_tables.table_search import mass_table_search
     from baraffe_tables.calculations import calculate_flux_ratio, calculate_stellar_radius

@@ -5,7 +5,7 @@ import numpy as np
 
 try:
     from db_queries import get_temperature
-except:
+except ImportError:
     from baraffe_tables.db_queries import get_temperature
 
 

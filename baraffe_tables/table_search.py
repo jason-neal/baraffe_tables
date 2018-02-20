@@ -20,7 +20,7 @@ def age_table(age: float, model: str="2003") -> Tuple[Dict[str, List[float]], Li
     model_data: numpy.ndarray
         The correct model table data.
     column_names: list of str
-        List of the colunms in the the table.
+        List of the columns in the the table.
 
     """
     if not isinstance(model, str):
@@ -74,12 +74,12 @@ def mass_table_search(companion_mass: float, age: float, model: str="2003") -> D
     age: float
         Age of star/system (Gyr).
     model: int
-       Year of Barraffe model to use [2003 (default), 2015].
+       Year of Baraffe model to use [2003 (default), 2015].
 
     Returns
     -------
     companion_parameters: list
-        Companion parameters from barraffe table, interpolated to the provided mass.
+        Companion parameters from Baraffe table, interpolated to the provided mass.
 
     """
     model_data, cols = age_table(age, model=model)
@@ -99,21 +99,21 @@ def magnitude_table_search(magnitudes: Dict[str, float], age: float, band: str="
     magnitudes: dict
         Dictionary of (band: magnitude) pairs.
     age: float
-        Age of star?system (Gyr).
+        Age of star/system (Gyr).
     band: str
         Wavelength band to use.
     model: int
-       Year of Barraffe model to use [2003 (default), 2015].
+       Year of Baraffe model to use [2003 (default), 2015].
 
     Returns
     -------
     companion_parameters: list
-        Companion parameters from barraffe table, interpolated between the
+        Companion parameters from Baraffe table, interpolated between the
         rows to the provided magnitude.
 
     """
     if not isinstance(band, str):
-        raise ValueError('Band {0} was given, when onlnot given as a single string.'.format(band))
+        raise ValueError('Band {0} was given, when not given as a single string.'.format(band))
 
     model_data, cols = age_table(age, model=model)
 
@@ -140,15 +140,15 @@ def table_interpolation(data: Dict[str, List[float]], ref_value: float, ref_col:
     Parameters
     ----------
     data: dict
-        Dictionary of table data. keys are the colunm headers.
+        Dictionary of table data. keys are the column headers.
     ref_value: float
         Value of reference parameter interpolating to.
     ref_col: str
-        Colunm name string.
+        Column name string.
     age: float
         Age of star?system (Gyr).
     model: int
-       Year of Barraffe model to use [2003 (default), 2015].
+       Year of Baraffe model to use [2003 (default), 2015].
 
     Returns
     -------
@@ -162,7 +162,7 @@ def table_interpolation(data: Dict[str, List[float]], ref_value: float, ref_col:
         y_data = data[key][::-1]
 
         if x_data[-1] < x_data[0]:
-            # Reverse data if not increaseing.
+            # Reverse data if not increasing.
             x_data = x_data[::-1]
             y_data = y_data[::-1]
 

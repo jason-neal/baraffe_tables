@@ -19,7 +19,7 @@ def get_stellar_params(star_name: str) -> Any:
     result_table: votable, dict-like
 
     """
-    # return Magnitudes, parralax, Temp
+    # return Magnitudes, parallax, Temp
     customSimbad = Simbad()
     # Can add more fluxes here if need to extend flux ranges. Although K is the simbad limit.
     # if want higher need to search for Wise band in VISIER probably.
