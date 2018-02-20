@@ -123,9 +123,13 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
 
     if paper:
         print(companion_params)
-        print(r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\".format(star_name, star_params["FLUX_K"][0],
-                                                                                    companion_mass, companion_params["Teff"],
-                                                                                    companion_params["Mk"], flux_ratios["K"]))
+        print(r"Host name, star M_K, companion_mass, companion Teff, companion_Mk, K_ratio")
+        print(r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\\\n".format(star_name,
+                                                                                       star_params["FLUX_K"][0],
+                                                                                       companion_mass,
+                                                                                       companion_params["Teff"],
+                                                                                       companion_params["Mk"],
+                                                                                       flux_ratios["K"]))
     if star_pars:
         print("\nStellar parameters:")
         star_params.pprint(show_unit=True)
