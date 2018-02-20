@@ -62,7 +62,7 @@ def calculate_flux_ratio(star_params: Any, companion_params: Dict[str, float], b
 
         # TODO: Need to check if FLUX is not empty. (returns a nan)
         if np.isnan(star_params["FLUX_{0!s}".format(band)]):
-            print("Warning: The flux ratio is nan, check that there is the value in Simbad.")
+            print("Warning: The flux ratio is nan, check that there is the value in SIMBAD.")
         flux_ratios[band] = flux_mag_ratio(float(star_params["FLUX_{0!s}".format(band)]),
                                            companion_params["M{}".format(band.lower())])
 

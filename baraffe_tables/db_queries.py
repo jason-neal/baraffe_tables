@@ -21,7 +21,7 @@ def get_stellar_params(star_name: str) -> Any:
     """
     # return Magnitudes, parallax, Temp
     customSimbad = Simbad()
-    # Can add more fluxes here if need to extend flux ranges. Although K is the simbad limit.
+    # Can add more fluxes here if need to extend flux ranges. Although K is the SIMBAD limit.
     # if want higher need to search for Wise band in VISIER probably.
     customSimbad.add_votable_fields('parallax', 'sp', 'fluxdata(B)',
                                     'fluxdata(V)', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)',
@@ -69,11 +69,11 @@ def get_sweet_cat_temp(star_name: str) -> Union[float, int]:
         return 0
 
 
-def get_temperature(star_name: str, star_params: Optional[Any]=None) -> float:
+def get_temperature(star_name: str, star_params: Optional[Any] = None) -> float:
     """Find temperature of the star multiple ways.
 
-    1st - Try Fe_H_Teff param from Simbad.
-    2nd - Try SweetCat but the star might not be there (only planet hosts).
+    1st - Try Fe_H_Teff param from SIMBAD.
+    2nd - Try SWEETCat but the star might not be there (only planet hosts).
     3rd - Calculate from B-V and interpolation.
 
     """
@@ -86,8 +86,8 @@ def get_temperature(star_name: str, star_params: Optional[Any]=None) -> float:
         # print("star_params['Fe_H_Teff'] =", star_params["Fe_H_Teff"])
         teff = star_params["Fe_H_Teff"][0]
         if teff == 0 or teff == [0]:
-            # No teff given by Simbad
-            print("Simbad Temperature was zero.")
+            # No teff given by SIMBAD
+            print("SIMBAD Temperature was zero.")
             teff = None
         else:
             good_temp = True

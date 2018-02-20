@@ -49,7 +49,7 @@ def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], 
 
     # Find closest model age.
     model_age = min(modelages, key=lambda x: abs(float(x) - age))  # Closest one
-    model_id = "p".join(str(model_age).split("."))   # Replace . with p in number str
+    model_id = "p".join(str(model_age).split("."))  # Replace . with p in number str
     model_name = base_name + model_id + "Gyr.dat"
     model_name = pkg_resources.resource_filename("baraffe_tables", model_name)
 
