@@ -35,7 +35,7 @@ def get_stellar_params(star_name: str) -> Any:
     return result_table
 
 
-def get_sweet_cat_temp(star_name: str) -> Union[bool, float, int]:
+def get_sweet_cat_temp(star_name: str) -> Union[float, int]:
     """Obtain spectroscopic temperature from SWEET-Cat.
 
     Parameters
@@ -58,15 +58,15 @@ def get_sweet_cat_temp(star_name: str) -> Union[bool, float, int]:
         hd_entry = data[data.hd == hd_number]
 
         if hd_entry.empty:
-            return False
+            return 0
         elif (hd_entry.iloc[0]["teff"] != 0) and (not np.isnan(hd_entry.iloc[0]["teff"])):
             # Temp = 0 when doesn't exist
             return hd_entry.iloc[0]["teff"]
         else:
-            return False
+            return 0
     else:
         print("{!s} was not in SWEET-Cat.".format(star_name))
-        return False
+        return 0
 
 
 def get_temperature(star_name: str, star_params: Optional[Any]=None) -> float:
@@ -97,7 +97,7 @@ def get_temperature(star_name: str, star_params: Optional[Any]=None) -> float:
     if not good_temp:
         teff = get_sweet_cat_temp(star_name)
 
-        if (teff is False) or (teff == 0) or (np.isnan(teff)):  # temp from sweet-cat
+        if (teff == 0) or (np.isnan(teff)):  # temp from sweet-cat
             print("No SWEET-Cat temperature, teff was {0} K".format(teff))
             teff = None
         else:
