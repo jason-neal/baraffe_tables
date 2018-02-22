@@ -2,8 +2,8 @@
 from typing import Any, Optional, Union
 
 import numpy as np
-from astroquery.simbad import Simbad
 from PyAstronomy import pyasl
+from astroquery.simbad import Simbad
 
 
 def get_stellar_params(star_name: str) -> Any:
