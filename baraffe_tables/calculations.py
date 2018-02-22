@@ -94,7 +94,7 @@ def calculate_stellar_radius(star_params: Any) -> float:
     return R_Rs  # Radius of star in solar radii
 
 
-def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: List[str] = ["K"]) -> Dict[str, float]:
+def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Optional[List[str]] = None) -> Dict[str, float]:
     """Calculate companion magnitude from flux ratio.
 
     Using the equation m - n = -2.5 * log_10(F_m / F_n).
@@ -105,8 +105,8 @@ def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Li
         Parameters for the host star.
     flux_ratio: float
         Flux ratio for the system (F_companion/F_host).
-    band: str
-        Bands to use. default = "K"
+    bands: List[str]
+        Bands to use. default = ["K"]
 
     Returns
     -------
@@ -119,6 +119,9 @@ def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Li
     only using a single flux_ratio value.
 
     """
+    if bands is None:
+        bands = ["K"]
+
     magnitudes = dict()
 
     for band in bands:
