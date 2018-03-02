@@ -2,8 +2,8 @@
 from typing import Any, Optional, Union
 
 import numpy as np
-from astroquery.simbad import Simbad
 from PyAstronomy import pyasl
+from astroquery.simbad import Simbad
 
 
 def get_stellar_params(star_name: str) -> Any:
@@ -21,7 +21,7 @@ def get_stellar_params(star_name: str) -> Any:
     """
     # return Magnitudes, parallax, Temp
     customSimbad = Simbad()
-    # Can add more fluxes here if need to extend flux ranges. Although K is the Simbad limit.
+    # Can add more fluxes here if need to extend flux ranges. Although K is the SIMBAD limit.
     # if want higher need to search for Wise band in VISIER probably.
     customSimbad.add_votable_fields('parallax', 'sp', 'fluxdata(B)',
                                     'fluxdata(V)', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)',
@@ -35,7 +35,7 @@ def get_stellar_params(star_name: str) -> Any:
     return result_table
 
 
-def get_sweet_cat_temp(star_name: str) -> Union[bool, float, int]:
+def get_sweet_cat_temp(star_name: str) -> Union[float, int]:
     """Obtain spectroscopic temperature from SWEET-Cat.
 
     Parameters
@@ -58,22 +58,22 @@ def get_sweet_cat_temp(star_name: str) -> Union[bool, float, int]:
         hd_entry = data[data.hd == hd_number]
 
         if hd_entry.empty:
-            return False
+            return 0
         elif (hd_entry.iloc[0]["teff"] != 0) and (not np.isnan(hd_entry.iloc[0]["teff"])):
             # Temp = 0 when doesn't exist
             return hd_entry.iloc[0]["teff"]
         else:
-            return False
+            return 0
     else:
         print("{!s} was not in SWEET-Cat.".format(star_name))
-        return False
+        return 0
 
 
 def get_temperature(star_name: str, star_params: Optional[Any] = None) -> float:
     """Find temperature of the star multiple ways.
 
-    1st - Try Fe_H_Teff param from Simbad.
-    2nd - Try SweetCat but the star might not be there (only planet hosts).
+    1st - Try Fe_H_Teff param from SIMBAD.
+    2nd - Try SWEETCat but the star might not be there (only planet hosts).
     3rd - Calculate from B-V and interpolation.
 
     """
@@ -86,8 +86,8 @@ def get_temperature(star_name: str, star_params: Optional[Any] = None) -> float:
         # print("star_params['Fe_H_Teff'] =", star_params["Fe_H_Teff"])
         teff = star_params["Fe_H_Teff"][0]
         if teff == 0 or teff == [0]:
-            # No teff given by Simbad
-            print("Simbad Temperature was zero.")
+            # No teff given by SIMBAD
+            print("SIMBAD Temperature was zero.")
             teff = None
         else:
             good_temp = True
@@ -97,7 +97,7 @@ def get_temperature(star_name: str, star_params: Optional[Any] = None) -> float:
     if not good_temp:
         teff = get_sweet_cat_temp(star_name)
 
-        if (teff is False) or (teff == 0) or (np.isnan(teff)):  # temp from sweet-cat
+        if (teff == 0) or (np.isnan(teff)):  # temp from sweet-cat
             print("No SWEET-Cat temperature, teff was {0} K".format(teff))
             teff = None
         else:

@@ -1,5 +1,3 @@
-# Setup file for equnaimousoctotribble
-
 
 from setuptools import setup, find_packages
 # from setuptools.command.test import test as TestCommand
@@ -92,4 +90,6 @@ setup(
         #        'sample=sample:main',
         # ],
     },
+    scripts=["baraffe_tables/BDmass_to_flux_ratio.py",
+             "baraffe_tables/flux_ratio_to_BDmass.py"],
 )

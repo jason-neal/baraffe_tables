@@ -1,11 +1,11 @@
 """Calculations for flux ratios."""
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
 try:
     from db_queries import get_temperature
-except:
+except ImportError:
     from baraffe_tables.db_queries import get_temperature
 
 
@@ -62,7 +62,7 @@ def calculate_flux_ratio(star_params: Any, companion_params: Dict[str, float], b
 
         # TODO: Need to check if FLUX is not empty. (returns a nan)
         if np.isnan(star_params["FLUX_{0!s}".format(band)]):
-            print("Warning: The flux ratio is nan, check that there is the value in Simbad.")
+            print("Warning: The flux ratio is nan, check that there is the value in SIMBAD.")
         flux_ratios[band] = flux_mag_ratio(float(star_params["FLUX_{0!s}".format(band)]),
                                            companion_params["M{}".format(band.lower())])
 
@@ -80,21 +80,22 @@ def calculate_stellar_radius(star_params: Any) -> float:
     Returns
     -------
     R_Rs: float
-        Esitmated Stellar Radius in solar radii.
+        Estimated Stellar Radius in solar radii.
 
     """
     star_name = star_params['name'][0]
     teff_star = get_temperature(star_name, star_params)
 
     Ts_T = 5800. / teff_star  # Temperature ratio
-    Dm = 4.83 - star_params["FLUX_V"][0]  # Differnce of aboslute magnitude
+    Dm = 4.83 - star_params["FLUX_V"][0]  # Difference of absolute magnitude
     L_Ls = 2.51 ** Dm  # Luminosity ratio
-    R_Rs = (Ts_T) ** 2 * np.sqrt(L_Ls)  # Raidus of Star in Solar Radii
+    R_Rs = (Ts_T) ** 2 * np.sqrt(L_Ls)  # Radius of Star in Solar Radii
 
     return R_Rs  # Radius of star in solar radii
 
 
-def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: List[str] = ["K"]) -> Dict[str, float]:
+def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Optional[List[str]] = None) -> Dict[
+    str, float]:
     """Calculate companion magnitude from flux ratio.
 
     Using the equation m - n = -2.5 * log_10(F_m / F_n).
@@ -105,8 +106,8 @@ def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Li
         Parameters for the host star.
     flux_ratio: float
         Flux ratio for the system (F_companion/F_host).
-    band: str
-        Bands to use. default = "K"
+    bands: List[str]
+        Bands to use. default = ["K"]
 
     Returns
     -------
@@ -115,10 +116,13 @@ def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Li
 
     Note
     ----
-    This is possibly not quite the correct implemenation as we are
+    This is possibly not quite the correct implementation as we are
     only using a single flux_ratio value.
 
     """
+    if bands is None:
+        bands = ["K"]
+
     magnitudes = dict()
 
     for band in bands:

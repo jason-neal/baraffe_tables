@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """Brown Dwarf Mass calculator.
 
 Uses stellar parameter databases to find host star parameters. The
@@ -27,7 +27,7 @@ try:
     from db_queries import get_stellar_params
     from table_search import magnitude_table_search
     from calculations import calculate_companion_magnitude
-except:
+except ImportError:
     from baraffe_tables.db_queries import get_stellar_params
     from baraffe_tables.table_search import magnitude_table_search
     from baraffe_tables.calculations import calculate_companion_magnitude
@@ -38,23 +38,22 @@ def _parser() -> object:
 
     :returns: the args
     """
-    parser = argparse.ArgumentParser(description='Determine mass of stellar ' +
-                                     'companion from a flux ratio')
+    parser = argparse.ArgumentParser(
+        description='Determine mass of stellar companion from a flux ratio')
     parser.add_argument('star_name', help='Name of host star.', type=str)
-    parser.add_argument('flux_ratio', type=float, help='Flux ratio between host ' +
-                        'and companion - (F_companion/F_host)')
+    parser.add_argument('flux_ratio', type=float,
+                        help='Flux ratio between host and companion (F_companion/F_host)')
     parser.add_argument('age', help='Star age (Gyr)', type=float)
     parser.add_argument("-b", "--bands", choices=["All", "J", "H", "K"], default=["K"],
-                        type=str, help='Magnitude bands for the flux ratio value', nargs="+")
+                        help='Magnitude bands for the flux ratio value', nargs="+", type=str)
     parser.add_argument('-m', '--model', choices=['03', '15', '2003', '2015'],
                         help='Baraffe model to use [2003, 2015]',
                         default='2003', type=str)
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(star_name: str, flux_ratio: float, stellar_age: float,
-         bands: Optional[List[str]]=None, model: str="2003") -> int:
+         bands: Optional[List[str]] = None, model: str = "2003") -> int:
     """Compute companion mass from flux ratio value.
 
     Parameters
@@ -71,7 +70,7 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
        Year of Baraffe model to use [2003 (default), 2015].
 
     """
-    Jup_sol_mass = (M_sun / M_jup).value  # Jupiter mass in Sun
+    Jup_sol_mass = (M_sun / M_jup).value  # Jupiter's in 1 M_sol
 
     if (bands is None) or ("All" in bands):
         bands = ["H", "J", "K"]
@@ -99,9 +98,5 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
 
 if __name__ == '__main__':
     args = vars(_parser())
-    star_name = args.pop('star_name')
-    flux_ratio = args.pop('flux_ratio')
-    age = args.pop('age')
     opts = {k: args[k] for k in args}
-
-    sys.exit(main(star_name, flux_ratio, age, **opts))
+    sys.exit(main(**opts))

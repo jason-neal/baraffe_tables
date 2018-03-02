@@ -2,7 +2,6 @@
 import sys
 
 import numpy as np
-import pkg_resources
 import pytest
 from astropy.constants import M_jup, M_sun
 
@@ -22,7 +21,7 @@ org_sysargv = sys.argv
 
 # Test two main functions.
 @pytest.mark.xfail  # Query fails when offline
-def test_main(raises=Exception):
+def test_main():
     """Check it returns 0 (Runs normally).
 
     If there is no internet then an Exception is raised.
@@ -36,7 +35,7 @@ def test_main(raises=Exception):
 
 
 @pytest.mark.xfail  # Query fails when offline
-def test_ratio_main(raises=Exception):
+def test_ratio_main():
     """Check it returns 0 (Runs normally).
 
     If there is no internet then an Exception is raised.
@@ -63,8 +62,8 @@ def test_flux_mag_ratio():
 
 def test_calculate_flux_ratio():
     """Test return of a dict with the 3 overlapping values."""
-    star_params = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}   # Names from Simbad
-    companion_params = {"Mj": 6, "Mh": 11, "Mk": 7}      # Names from Baraffe
+    star_params = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}  # Names from SIMBAD
+    companion_params = {"Mj": 6, "Mh": 11, "Mk": 7}  # Names from Baraffe
 
     flux_ratios = calculate_flux_ratio(star_params, companion_params, bands=["J", "H", "K"])
     assert isinstance(flux_ratios, dict)
@@ -77,7 +76,7 @@ def test_calculate_flux_ratio():
 @pytest.mark.xfail
 def test_get_sweet_cat_temp():
     """Test getting from sweet-cat."""
-    # hd number in SweetCat
+    # hd number in SWEETCat
     a = get_sweet_cat_temp("HD107383")
     assert isinstance(a, float)
     assert a == 4830
@@ -86,13 +85,13 @@ def test_get_sweet_cat_temp():
     assert b is False
     # non hd id
     with pytest.raises(NotImplementedError):
-        get_sweet_cat_temp("GJ 422")  # in Sweet-Cat but not an hd number
+        get_sweet_cat_temp("GJ 422")  # in SWEETCat but not an hd number
 
     # 2 tries that line in Sweet-Cat that has no temperature
     # These are the only two that have hd numbers
-    c = get_sweet_cat_temp("HD145934")  # This may change if Sweet-Cat is updated
+    c = get_sweet_cat_temp("HD145934")  # This may change if SWEETCat is updated
     assert c is False
-    d = get_sweet_cat_temp("HD41004B")  # This may change if Sweet-Cat is updated
+    d = get_sweet_cat_temp("HD41004B")  # This may change if SWEETCat is updated
     assert d is False
 
 
@@ -121,14 +120,14 @@ def test_get_temperature_examples():
         object at 0x7fe4e509b438>: Failed to establish a new connection: [Errno -3] Temporary failure in name
         resolution', )).
     """
-    star = "HD12116"   # Has zero temp in Simbad (Check this is not used)
+    star = "HD12116"  # Has zero temp in SIMBAD (Check this is not used)
     assert get_temperature(star) != 0
 
-    star_simbad = "HD215909"    # has a temperature in Simbad
+    star_simbad = "HD215909"  # has a temperature in SIMBAD
     simbad_temp = 4328
     assert get_temperature(star_simbad) == simbad_temp
 
-    # Sweet_cat temperature and NO Simbad temperature!
+    # Sweet_cat temperature and NO SIMBAD temperature!
     sweet_name = "HD343246"
     sweet_temp = 5754
     assert get_temperature(sweet_name) == sweet_temp
@@ -136,7 +135,7 @@ def test_get_temperature_examples():
 
 @pytest.mark.xfail(raises=Exception)
 def test_get_stellar_params():
-    """Test some values from Simbad database result.
+    """Test some values from SIMBAD database result.
 
     If there is no internet then an Exception is raised.
         Exception: Query failed: HTTPConnectionPool(host='simbad.u-strasbg.fr', port=80): Max retries exceeded with
@@ -154,8 +153,8 @@ def test_get_stellar_params():
     assert params["FLUX_V"] == 8.01
     assert params["FLUX_K"] == 6.530
     assert params["PLX_VALUE"][0] == 13.83  # parallax
-    assert params['Fe_H_log_g'] == 4.19     # log g
-    assert params['Fe_H_Fe_H'] == 0.16      # metallicity
+    assert params['Fe_H_log_g'] == 4.19  # log g
+    assert params['Fe_H_Fe_H'] == 0.16  # metallicity
 
 
 # Test Flux ratio to Mass
@@ -180,11 +179,9 @@ def test_mag_conversions(band):
     assert np.allclose(new_ratios[band], ratios[band])
 
 
-# @pytest.mark.xfail()
 @pytest.mark.parametrize("mass_model", [(50, "2003"), (150, "2015")])
 @pytest.mark.parametrize("age", [1, 5, 10])
 @pytest.mark.parametrize("band", ["H", "J", "K"])
-# @pytest.mark.parametrize("model", ["2003", "2015"])
 def test_table_searches(mass_model, age, band):
     """That a given mass calculates a magnitude and that mag finds a correct mass."""
     starting_mass = mass_model[0]  # M_jup
@@ -211,7 +208,7 @@ def test_table_searches(mass_model, age, band):
 @pytest.mark.parametrize("age", [0.1, 1, 10])
 @pytest.mark.parametrize("model", ["2003", "2015"])
 def test_age_table(age, model):
-    """Select a Baraffe table of certain and model."""
+    """Select a Baraffe table of certain age and model."""
     model_table, cols = age_table(age, model=model)
 
     assert isinstance(model_table, dict)
@@ -237,8 +234,8 @@ def test_bad_model_age_table(model):
 def test_calculate_comp_magnitude():
     """Test t returns values fr all bands given."""
     bands = ["H", "J", "K"]
-    star_vals = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}   # Names from Simbad
-    magnitudes = calculate_companion_magnitude(star_vals, 0.001, bands)
+    star_values = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}  # Names from SIMBAD
+    magnitudes = calculate_companion_magnitude(star_values, 0.001, bands)
 
     assert isinstance(magnitudes, dict)
     assert len(magnitudes) == 3
@@ -248,7 +245,7 @@ def test_calculate_comp_magnitude():
     # Test error
     bands = ["H", "P"]
     with pytest.raises(ValueError):
-        calculate_companion_magnitude(star_vals, 0.001, bands)
+        calculate_companion_magnitude(star_values, 0.001, bands)
 
 
 def test_mag_table_search_band():
@@ -310,7 +307,7 @@ def test_magnitude_table_search_errors():
 
     with pytest.raises(ValueError):
         # More than one band not allowed
-        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band=("K", ), model="2015")
+        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band=("K",), model="2015")
 
     with pytest.raises(ValueError):
         # More then one band not allowed
@@ -385,7 +382,7 @@ def test_failing_ratio_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        ratio_parser()   # ratio is not a number
+        ratio_parser()  # ratio is not a number
 
     sys.argv = []
     test_args = "pytest HD30501 0.001 5 -b H K -m 2015 -z 4".split()  # unknown parameter -z
@@ -393,7 +390,7 @@ def test_failing_ratio_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        ratio_parser()   # unknown parameter -z
+        ratio_parser()  # unknown parameter -z
 
     # Invalid choice of band
     sys.argv = []
@@ -402,7 +399,7 @@ def test_failing_ratio_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        ratio_parser()   # SystemExit
+        ratio_parser()  # SystemExit
 
     sys.argv = org_sysargv
 
@@ -417,7 +414,7 @@ def test_failing_mass_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        mass_parser()   # ratio is not a number
+        mass_parser()  # ratio is not a number
 
     sys.argv = []
     test_args = "pytest HD30501 mass 5 -b H K -m 2003-z 4".split()  # unknown parameter -z
@@ -425,7 +422,7 @@ def test_failing_mass_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        mass_parser()   # unknown parameter -z
+        mass_parser()  # unknown parameter -z
 
     # Invalid choice of band
     sys.argv = []
@@ -434,6 +431,6 @@ def test_failing_mass_parsers():
         sys.argv.append(arg)
 
     with pytest.raises(SystemExit):
-        mass_parser()   # SystemExit
+        mass_parser()  # SystemExit
 
     sys.argv = org_sysargv

@@ -99,7 +99,7 @@ def magnitude_table_search(magnitudes: Dict[str, float], age: float, band: str =
     magnitudes: dict
         Dictionary of (band: magnitude) pairs.
     age: float
-        Age of star?system (Gyr).
+        Age of star/system (Gyr).
     band: str
         Wavelength band to use.
     model: int
@@ -113,7 +113,7 @@ def magnitude_table_search(magnitudes: Dict[str, float], age: float, band: str =
 
     """
     if not isinstance(band, str):
-        raise ValueError('Band {0} was given, when only not given as a single string.'.format(band))
+        raise ValueError('Band {0} was given, when not given as a single string.'.format(band))
 
     model_data, cols = age_table(age, model=model)
 

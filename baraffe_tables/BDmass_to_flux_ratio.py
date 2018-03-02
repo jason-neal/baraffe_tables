@@ -1,13 +1,13 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 """Brown Dwarf Flux ratio calculator.
 
 Calculates the flux/contrast ratio between a host star and a brown dwarf of a specified mass.
 
 This script uses the SIMBAD database to obtain the host star parameters, such as magnitude and age.
-The companion/brown dwarf mass is a given input (in Mjup) and  is used to obtain the band magnitudes
+The companion/brown dwarf mass is a given input (in M_Jup) and  is used to obtain the band magnitudes
 of the companion from the Baraffe tables.
 
-The magnitude difference between the host and companion are used to caluate the flux/contrast ratio.
+The magnitude difference between the host and companion are used to calculate the flux/contrast ratio.
 
 Inputs
 ------
@@ -37,7 +37,7 @@ try:
     from db_queries import get_stellar_params
     from table_search import mass_table_search
     from calculations import calculate_flux_ratio, calculate_stellar_radius
-except:
+except ImportError:
     from baraffe_tables.db_queries import get_stellar_params
     from baraffe_tables.table_search import mass_table_search
     from baraffe_tables.calculations import calculate_flux_ratio, calculate_stellar_radius
@@ -48,22 +48,27 @@ def _parser() -> object:
 
     :returns: the args
     """
-    parser = argparse.ArgumentParser(description='Determine flux ratio of stellar companion')
+    parser = argparse.ArgumentParser(
+        description='Determine flux ratio of stellar companion')
     parser.add_argument('star_name', help='Input fits file to calibrate')
     parser.add_argument('companion_mass', help='Mass of companion (M_Jup)', type=float)
     parser.add_argument('age', help='Star age (Gyr)', type=float)
-    parser.add_argument('-b', '--bands', help='Spectral Band to measure. Options=["All", "K", ""]',
-                        choices=["All", "J", "H", "K"], default=["All"], nargs="+", type=str)
+    parser.add_argument('-b', '--bands', choices=["All", "J", "H", "K"],
+                        default=["All"], nargs="+", type=str,
+                        help='Spectral Band to measure. Options=["All", "K", ""]')
     parser.add_argument('-m', '--model', choices=['03', '15', '2003', '2015'],
                         help='Baraffe model to use [2003, 2015]', default='2003', type=str)
-    parser.add_argument("-a", "--area_ratio", help="Calculate the area ratio.", default=False, action="store_true")
-    parser.add_argument("-p", "--paper", help="Print more parameters for paper.", default=False, action="store_true")
-    args = parser.parse_args()
-    return args
+    parser.add_argument("-a", "--area_ratio", default=False, action="store_true",
+                        help="Calculate the area ratio.")
+    parser.add_argument("-p", "--paper", default=False, action="store_true",
+                        help="Print more parameters for paper.")
+    parser.add_argument("-s", "--star_pars", default=False, action="store_true",
+                        help="Print star parameters for paper.")
+    return parser.parse_args()
 
 
 def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optional[List[str]] = None,
-         model: str = "2003", area_ratio: bool = False, paper: bool = False) -> int:
+         model: str = "2003", area_ratio: bool = False, paper: bool = False, star_pars: bool = False) -> int:
     """Compute flux/contrast ratio between a stellar host and companion.
 
     Parameters
@@ -82,6 +87,8 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         Perform simple radius and area comparisons calculations.
     paper: bool
         Print other parameters need for paper table.
+    star_pars: bool
+        Print star parameters also.
 
     """
     if (bands is None) or ("All" in bands):
@@ -120,20 +127,21 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
 
     if paper:
         print(companion_params)
-        print(r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\".format(star_name, star_params["FLUX_K"][0],
-                                                                                    companion_mass,
-                                                                                    companion_params["Teff"],
-                                                                                    companion_params["Mk"],
-                                                                                    flux_ratios["K"]))
+        print(r"Host name, star M_K, companion_mass, companion Teff, companion_Mk, K_ratio")
+        print(r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\\\n".format(star_name,
+                                                                                       star_params["FLUX_K"][0],
+                                                                                       companion_mass,
+                                                                                       companion_params["Teff"],
+                                                                                       companion_params["Mk"],
+                                                                                       flux_ratios["K"]))
+    if star_pars:
+        print("\nStellar parameters:")
+        star_params.pprint(show_unit=True)
 
     return 0
 
 
 if __name__ == '__main__':
     args = vars(_parser())
-    star_name = args.pop('star_name')
-    companion_mass = args.pop('companion_mass')
-    age = args.pop('age')
     opts = {k: args[k] for k in args}
-
-    sys.exit(main(star_name, companion_mass, age, **opts))
+    sys.exit(main(**opts))
