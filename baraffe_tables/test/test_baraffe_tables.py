@@ -18,10 +18,8 @@ from baraffe_tables.table_search import (age_table, magnitude_table_search,
 
 org_sysargv = sys.argv
 
-
-# Test two main functions.
-@pytest.mark.xfail  # Query fails when offline
-def test_main():
+@pytest.mark.parametrize("area_ratio", [True, False])
+def test_BD_to_flux_runs(area_ratio):
     """Check it returns 0 (Runs normally).
 
     If there is no internet then an Exception is raised.
@@ -30,12 +28,11 @@ def test_main():
         object at 0x7fe4e509b438>: Failed to establish a new connection: [Errno -3] Temporary failure in name
         resolution')).
     """
-    assert mass_main("HD30501", 90, 5) is 0
-    assert mass_main("HD30501", 90, 5, area_ratio=True) is 0
+    assert mass_main("HD30501", 90, 5, area_ratio=area_ratio) is 0
 
 
-@pytest.mark.xfail  # Query fails when offline
-def test_ratio_main():
+#@pytest.mark.xfail  # Query fails when offline
+def test_ratio_to_BD_runs():
     """Check it returns 0 (Runs normally).
 
     If there is no internet then an Exception is raised.
