@@ -28,13 +28,8 @@ def flux_mag_ratio(mag1: float, mag2: float) -> float:
         flux/contrast ratio between the two magnitudes.
 
     """
-    if isinstance(mag1, (int, float)) and isinstance(mag2, (int, float)):
-        # return 2.512**(mag2 - mag1)  # Approximation
-        return 10 ** (-0.4 * (mag1 - mag2))
-    else:
-        print(type(mag1), type(mag2))
-        raise ValueError("Magnitudes given were not floats or ints. Mag1 = {}, Mag2 = {}".format(mag1, mag2))
-
+    flux_ratio = 10 ** (-0.4 * (mag1 - mag2))
+    return flux_ratio
 
 def calculate_flux_ratio(star_params: Any, companion_params: Dict[str, float], bands: List[str]) -> Dict[str, float]:
     """Flux ratios for the different bands in bands.
