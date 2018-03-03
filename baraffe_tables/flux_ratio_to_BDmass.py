@@ -49,11 +49,16 @@ def _parser() -> object:
     parser.add_argument('-m', '--model', choices=['03', '15', '2003', '2015'],
                         help='Baraffe model to use [2003, 2015]',
                         default='2003', type=str)
+    parser.add_argument("-f", "--full_table", default=False, action="store_true",
+                        help="Print full table.")
+    parser.add_argument("-s", "--star_pars", default=False, action="store_true",
+                        help="Print star parameters for paper.")
     return parser.parse_args()
 
 
 def main(star_name: str, flux_ratio: float, stellar_age: float,
-         bands: Optional[List[str]] = None, model: str = "2003") -> int:
+         bands: Optional[List[str]] = None, model: str = "2003",
+         star_pars: bool = False, full_table: bool = False) -> int:
     """Compute companion mass from flux ratio value.
 
     Parameters
@@ -68,6 +73,10 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
         Wavelength band to use. (optional)
     model: int (optional)
        Year of Baraffe model to use [2003 (default), 2015].
+    full_table: bool
+        Print all parameters in table.
+    star_pars: bool
+        Print star parameters also.
 
     """
     Jup_sol_mass = (M_sun / M_jup).value  # Jupiter's in 1 M_sol
@@ -79,8 +88,8 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
     star_params = get_stellar_params(star_name)  # returns a astroquery result table
 
     for band in bands:
+        print("{0!s} band\n------".format(band))
         mag_label = "FLUX_{0!s}".format(band)
-        companion_mag_label = "M{0!s}".format(band.lower())
 
         # Convert stellar apparent mag to absolute magnitude.
         apparent_mag = star_params[mag_label]
@@ -104,6 +113,13 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
               " = {} (M_Jup)".format(Jup_sol_mass * companion_params["M/Ms"]) +
               ", Temp = {} K".format(companion_params["Teff"]))
 
+        if full_table:
+            print("Companion parameters:")
+            print(companion_params)
+
+        if star_pars:
+            print("\nStellar parameters:")
+            star_params.pprint(show_unit=True)
     return 0
 
 

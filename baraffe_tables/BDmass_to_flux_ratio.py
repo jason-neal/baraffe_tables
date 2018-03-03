@@ -61,7 +61,7 @@ def _parser() -> object:
                         help='Baraffe model to use [2003, 2015]', default='2003', type=str)
     parser.add_argument("-a", "--area_ratio", default=False, action="store_true",
                         help="Calculate the area ratio.")
-    parser.add_argument("-p", "--paper", default=False, action="store_true",
+    parser.add_argument("-f", "--full_table", default=False, action="store_true",
                         help="Print more parameters for paper.")
     parser.add_argument("-s", "--star_pars", default=False, action="store_true",
                         help="Print star parameters for paper.")
@@ -69,7 +69,7 @@ def _parser() -> object:
 
 
 def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optional[List[str]] = None,
-         model: str = "2003", area_ratio: bool = False, paper: bool = False, star_pars: bool = False) -> int:
+         model: str = "2003", area_ratio: bool = False, full_table: bool = False, star_pars: bool = False) -> int:
     """Compute flux/contrast ratio between a stellar host and companion.
 
     Parameters
@@ -146,7 +146,7 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         print("Radius Ratio of companion/star    = {}".format(Rcomp_Rstar))
         print("Area Ratio of companion/star      = {}".format(Rcomp_Rstar ** 2))
 
-    if paper:
+    if full_table:
         print(companion_params)
         print(r"Host name, star M_K, companion_mass, companion Teff, companion_Mk, K_ratio")
         print(r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\\\n".format(star_name,
