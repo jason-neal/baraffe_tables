@@ -82,14 +82,7 @@ def test_get_temperature_without_params_input():
     ("HD343246", 5754),  # SweetCat temp
 ])
 def test_get_temperature_examples(name, temp):
-    """Test some temperatures.
-
-    If there is no internet then an Exception is raised.
-        Exception: Query failed: HTTPConnectionPool(host='simbad.u-strasbg.fr', port=80): Max retries exceeded with
-        url: /simbad/sim-script (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection
-        object at 0x7fe4e509b438>: Failed to establish a new connection: [Errno -3] Temporary failure in name
-        resolution', )).
-    """
+    """Test some temperatures."""
     assert get_temperature(name) == temp
 
 
@@ -99,14 +92,7 @@ def test_get_temperature_ignores_zero_temp():
 
 
 def test_get_stellar_params():
-    """Test some values from SIMBAD database result.
-
-    If there is no internet then an Exception is raised.
-        Exception: Query failed: HTTPConnectionPool(host='simbad.u-strasbg.fr', port=80): Max retries exceeded with
-        url: /simbad/sim-script (Caused by NewConnectionError('<requests.packages.urllib3.connection.HTTPConnection
-        object at 0x7fe4e509b438>: Failed to establish a new connection: [Errno -3] Temporary failure in name
-        resolution', )).
-    """
+    """Test some values from SIMBAD database result."""
     name = "HD219828"
     params = get_stellar_params(name)
 
@@ -114,7 +100,7 @@ def test_get_stellar_params():
     assert params["FLUX_B"] == 8.68
     assert params["FLUX_V"] == 8.01
     assert params["FLUX_K"] == 6.530
-    assert params["PLX_VALUE"][0] == 13.83  # parallax
+    assert params["PLX_VALUE"][0] == 14.0  # parallax
     assert params['Fe_H_log_g'] == 4.19  # log g
     assert params['Fe_H_Fe_H'] == 0.16  # metallicity
 
