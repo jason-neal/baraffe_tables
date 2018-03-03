@@ -106,25 +106,18 @@ def test_get_stellar_params():
 
 
 # Test Flux ratio to Mass
-@pytest.mark.parametrize("band", ["H", "J", "K"])
-def test_mag_conversions(band):
+@pytest.mark.parametrize("mag_1, mag_2", [(3, 7), (4, 2), (5, 11)])
+def test_mag_conversions(mag_1, mag_2):
     """Test converting from flux ratio to magnitude back to flux ratio etc.
 
     Tests show the conversion goes back and forward.
     """
-    comp_vals = {"Mj": 4, "Mk": 6, "Mh": 12}
-    star_vals = {"FLUX_J": 3, "FLUX_K": 11, "FLUX_H": 5}
+    ratio = flux_mag_ratio(mag_1, mag_2)
+    magnitude = calculate_companion_magnitude(mag_1, 1. / ratio)
+    assert magnitude == mag_2
+    new_ratio = flux_mag_ratio(mag_1, magnitude)
 
-    ratios = calculate_flux_ratio(star_vals, comp_vals, band)
-    print("Ratios from function", ratios)
-    magnitudes = calculate_companion_magnitude(star_vals, 1. / ratios[band], band)
-    print("magnitudes from ratios", magnitudes)
-    magnitudes["M{}".format(band.lower())] = magnitudes[band]
-    print("magnitudes from ratios", magnitudes)
-    new_ratios = calculate_flux_ratio(star_vals, magnitudes, band)
-    print("new_ratios from mags", new_ratios)
-
-    assert np.allclose(new_ratios[band], ratios[band])
+    assert np.allclose(new_ratio, ratio)
 
 
 @pytest.mark.parametrize("mass, model", [(50, "2003"), (150, "2015")])
