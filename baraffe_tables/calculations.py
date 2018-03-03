@@ -57,25 +57,22 @@ def calculate_stellar_radius(star_params: Any) -> float:
     return R_Rs  # Radius of star in solar radii
 
 
-def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Optional[List[str]] = None) -> Dict[
-    str, float]:
+def calculate_companion_magnitude(star_mag: float, flux_ratio: float) -> float:
     """Calculate companion magnitude from flux ratio.
 
     Using the equation m - n = -2.5 * log_10(F_m / F_n).
 
     Parameters
     ----------
-    star_params: dict
-        Parameters for the host star.
+    star_mag: float
+        Host star magnitude.
     flux_ratio: float
         Flux ratio for the system (F_companion/F_host).
-    bands: List[str]
-        Bands to use. default = ["K"]
 
     Returns
     -------
-    magnitudes: dict
-        Magnitudes for the companion in the J, H, and K bands.
+    magnitude: float
+        Companion magnitude.
 
     Note
     ----
@@ -83,20 +80,9 @@ def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Op
     only using a single flux_ratio value.
 
     """
-    if bands is None:
-        bands = ["K"]
 
-    magnitudes = dict()
-
-    for band in bands:
-        band = band.upper()
-        if band in ["J", "H", "K"]:
-            magnitudes[band] = star_params["FLUX_{0!s}".format(band)] - 2.5 * np.log10(flux_ratio)
-        else:
-            raise ValueError("Magnitude band {0!s} was not in parameter dictionaries.".format(band))
-        print("Band in calc magnitude ", band, "mags", magnitudes)
-
-    return magnitudes
+    magnitude = star_mag - 2.5 * np.log10(flux_ratio)
+    return magnitude
 
 
 def distance_modulus(d: float):
@@ -150,5 +136,3 @@ def apparent_magnitude(parallax, M):
     mu = distance_modulus(d)
     m = M + mu
     return m
-
-

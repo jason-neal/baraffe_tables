@@ -26,11 +26,11 @@ from astropy.constants import M_jup, M_sun
 try:
     from db_queries import get_stellar_params
     from table_search import magnitude_table_search
-    from calculations import calculate_companion_magnitude
+    from calculations import calculate_companion_magnitude, absolute_magnitude
 except ImportError:
     from baraffe_tables.db_queries import get_stellar_params
     from baraffe_tables.table_search import magnitude_table_search
-    from baraffe_tables.calculations import calculate_companion_magnitude
+    from baraffe_tables.calculations import calculate_companion_magnitude, absolute_magnitude
 
 
 def _parser() -> object:
@@ -78,17 +78,28 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
     # Obtain Stellar parameters from astroquery
     star_params = get_stellar_params(star_name)  # returns a astroquery result table
 
-    # Calculate Magnitude J, H and K bands magnitude for this flux ratio
-    magnitudes = calculate_companion_magnitude(star_params, flux_ratio, bands=bands)
-    print("Magnitude calculation for companion {}".format([magnitudes[key] for key in magnitudes]))
-
     for band in bands:
+        mag_label = "FLUX_{0!s}".format(band)
+        companion_mag_label = "M{0!s}".format(band.lower())
+
+        # Convert stellar apparent mag to absolute magnitude.
+        apparent_mag = star_params[mag_label]
+        parallax = star_params['PLX_VALUE']
+        if parallax.unit != "mas":
+            raise ValueError("Parallax unit not correct")
+        absolute_mag = absolute_magnitude(parallax.data[0], apparent_mag.data[0])
+
+        # Calculate Absolute companion magnitude for this flux ratio
+        companion_mag = calculate_companion_magnitude(absolute_mag, flux_ratio)
+
+        print("Magnitude calculation for companion M{0} = {1}".format(band, companion_mag))
+
         # Find companion parameters that match these magnitudes
-        companion_params = magnitude_table_search(magnitudes, stellar_age,
+        companion_params = magnitude_table_search(companion_mag, stellar_age,
                                                   band=band, model=model)
 
         # Print flux ratios using a generator
-        print("Estimated Companion Mass from {} band Flux ratio\n".format(band.upper()))
+        print("Estimated Companion Mass from {0} band flux ratio".format(band.upper()))
         print("M/M_S = {0} (M_star)".format(companion_params["M/Ms"]) +
               " = {} (M_Jup)".format(Jup_sol_mass * companion_params["M/Ms"]) +
               ", Temp = {} K".format(companion_params["Teff"]))
