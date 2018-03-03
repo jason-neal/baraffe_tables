@@ -25,8 +25,9 @@ model: str
 """
 # TODO: Interpolate between tables?
 from __future__ import division, print_function
-import logging
+
 import argparse
+import logging
 import sys
 from typing import List, Optional
 
@@ -41,7 +42,6 @@ except ImportError:
     from baraffe_tables.db_queries import get_stellar_params
     from baraffe_tables.table_search import mass_table_search
     from baraffe_tables.calculations import calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
-    #from baraffe_tables.old_code import calculate_flux_ratio
 
 
 def _parser() -> object:

@@ -7,7 +7,8 @@ from astropy.constants import M_jup, M_sun
 
 from baraffe_tables.BDmass_to_flux_ratio import _parser as mass_parser
 from baraffe_tables.BDmass_to_flux_ratio import main as mass_main
-from baraffe_tables.calculations import (calculate_companion_magnitude)
+from baraffe_tables.calculations import calculate_companion_magnitude
+from baraffe_tables.calculations import flux_mag_ratio
 from baraffe_tables.db_queries import (get_stellar_params, get_sweet_cat_temp,
                                        get_temperature)
 from baraffe_tables.flux_ratio_to_BDmass import _parser as ratio_parser
@@ -16,6 +17,7 @@ from baraffe_tables.table_search import (age_table, magnitude_table_search,
                                          mass_table_search)
 
 org_sysargv = sys.argv
+
 
 @pytest.mark.parametrize("area_ratio", [True, False])
 def test_BD_to_flux_runs(area_ratio):
@@ -230,7 +232,7 @@ def test_mass_table_search_15():
 
 def test_magnitude_table_search_03():
     """That a value from the table returns the correct row."""
-    mag_params = magnitude_table_search({"K": 10.04}, 5, band="K", model="2003")
+    mag_params = magnitude_table_search(10.04, 5, band="K", model="2003")
     print("mag_params", mag_params)
     assert mag_params["M/Ms"] == 0.09
     assert mag_params["Teff"] == 2622
@@ -240,7 +242,7 @@ def test_magnitude_table_search_03():
 
 def test_magnitude_table_search_15():
     """Manual test of a 2015 table magnitude search."""
-    mag_params_15 = magnitude_table_search({"K": 9.91}, 5, band="K", model="2015")
+    mag_params_15 = magnitude_table_search(9.91, 5, band="K", model="2015")
     assert mag_params_15["M/Ms"] == 0.09
     assert mag_params_15["Teff"] == 2644
     assert mag_params_15["R/Rs"] == 0.113
@@ -263,10 +265,8 @@ def test_magnitude_table_search_errors(band):
 # Need sys.argv fixture with teardown
 def test_BDmass_parser():
     """Test argparse function using sys.argv."""
-    sys.argv = []
-    test_args = "pytest HD30501 90 5 -a".split()
-    for arg in test_args:
-        sys.argv.append(arg)
+    sys.argv = "pytest HD30501 90 5 -a -f -s".split()
+
     args = mass_parser()
     assert args.star_name == "HD30501"
     assert args.companion_mass == 90
@@ -274,7 +274,8 @@ def test_BDmass_parser():
     assert args.bands == ["All"]
     assert args.model == "2003"
     assert args.area_ratio is True
-    # Not the correct way for teardown
+    assert args.full_table == True
+    assert args.star_pars == True
     sys.argv = org_sysargv
 
 
@@ -289,15 +290,14 @@ def test_ratio_parser():
     assert args.bands == ["H"]
     assert args.stellar_age == 5
     assert args.model == "2015"
+    assert args.full_table == False
+    assert args.star_pars == False
     sys.argv = org_sysargv
 
 
 def test_ratio_parser2():
     """Test argparse function using sys.argv more than one band."""
-    sys.argv = []
-    test_args = "pytest HD30501 0.001 5 -m 2015 -b H K".split()
-    for arg in test_args:
-        sys.argv.append(arg)
+    sys.argv = "pytest HD30501 0.001 5 -m 2015 -b H K -f -s".split()
 
     args = ratio_parser()
     assert args.star_name == "HD30501"
@@ -305,6 +305,8 @@ def test_ratio_parser2():
     assert args.bands == ["H", "K"]
     assert args.stellar_age == 5
     assert args.model == "2015"
+    assert args.full_table == True
+    assert args.star_pars == True
     sys.argv = org_sysargv
 
 
