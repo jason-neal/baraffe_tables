@@ -30,7 +30,6 @@ def test_BD_to_flux_runs(area_ratio):
     assert mass_main("HD30501", 90, 5, area_ratio=area_ratio) is 0
 
 
-#@pytest.mark.xfail  # Query fails when offline
 def test_ratio_to_BD_runs():
     """Check it returns 0 (Runs normally).
 
@@ -81,7 +80,11 @@ def test_get_temperature_without_params_input():
 
 
 @pytest.mark.xfail(raises=Exception)
-def test_get_temperature_examples():
+@pytest.mark.parametrize("name, temp", [
+    ("HD215909", 4328),  # SIMBAD temp
+    ("HD343246", 5754),  # SweetCat temp
+])
+def test_get_temperature_examples(name, temp):
     """Test some temperatures.
 
     If there is no internet then an Exception is raised.
@@ -90,17 +93,13 @@ def test_get_temperature_examples():
         object at 0x7fe4e509b438>: Failed to establish a new connection: [Errno -3] Temporary failure in name
         resolution', )).
     """
+    assert get_temperature(name) == temp
+
+
+@pytest.mark.xfail(raises=Exception)
+def test_get_temperature_ignores_zero_temp():
     star = "HD12116"  # Has zero temp in SIMBAD (Check this is not used)
     assert get_temperature(star) != 0
-
-    star_simbad = "HD215909"  # has a temperature in SIMBAD
-    simbad_temp = 4328
-    assert get_temperature(star_simbad) == simbad_temp
-
-    # Sweet_cat temperature and NO SIMBAD temperature!
-    sweet_name = "HD343246"
-    sweet_temp = 5754
-    assert get_temperature(sweet_name) == sweet_temp
 
 
 @pytest.mark.xfail(raises=Exception)
@@ -148,30 +147,23 @@ def test_mag_conversions(band):
     assert np.allclose(new_ratios[band], ratios[band])
 
 
-@pytest.mark.parametrize("mass_model", [(50, "2003"), (150, "2015")])
+@pytest.mark.parametrize("mass, model", [(50, "2003"), (150, "2015")])
 @pytest.mark.parametrize("age", [1, 5, 10])
 @pytest.mark.parametrize("band", ["H", "J", "K"])
-def test_table_searches(mass_model, age, band):
+def test_table_searches(mass, model, age, band):
     """That a given mass calculates a magnitude and that mag finds a correct mass."""
-    starting_mass = mass_model[0]  # M_jup
-    model = mass_model[1]
-    start_sol_mass = starting_mass * (M_jup / M_sun).value
-    print("Starting_mass = {0} (Mjup), {1} (Msun)".format(starting_mass, start_sol_mass))
+    start_sol_mass = mass * (M_jup / M_sun).value
 
-    comp_params = mass_table_search(start_sol_mass, age=age, model=model)
-    found_mag = comp_params["M{0!s}".format(band.lower())]
-    print("Band", band, "Found magnitude", found_mag)
-    magnitude = {band: found_mag}
-    print("magnitude", magnitude)
+    # Find magnitude from mass
+    mass_comp_params = mass_table_search(start_sol_mass, age=age, model=model)
+    found_mag = mass_comp_params["M{0!s}".format(band.lower())]
 
-    mag_params = magnitude_table_search(magnitude, age=age, band=band, model=model)
-    print("mag_params", mag_params)
-
-    found_mass = mag_params["M/Ms"]
-    print("found_mass", found_mass, "start_mass", start_sol_mass)
+    # Find mass from magnitude
+    mag_comp_params = magnitude_table_search(found_mag, age=age, band=band, model=model)
+    found_mass = mag_comp_params["M/Ms"]
 
     assert np.allclose(found_mass, start_sol_mass)
-    assert np.allclose(found_mass * M_sun / M_jup, starting_mass)  # back int M_jup
+    assert np.allclose(found_mass * M_sun / M_jup, mass)  # Back int M_jup
 
 
 @pytest.mark.parametrize("age", [0.1, 1, 10])
@@ -200,30 +192,27 @@ def test_bad_model_age_table(model):
         age_table(5, model)
 
 
-def test_calculate_comp_magnitude():
-    """Test t returns values fr all bands given."""
-    bands = ["H", "J", "K"]
-    star_values = {"FLUX_J": 1, "FLUX_H": 1, "FLUX_K": 2}  # Names from SIMBAD
-    magnitudes = calculate_companion_magnitude(star_values, 0.001, bands)
-
-    assert isinstance(magnitudes, dict)
-    assert len(magnitudes) == 3
-    for band in bands:
-        assert band in magnitudes.keys()
-
-    # Test error
-    bands = ["H", "P"]
-    with pytest.raises(ValueError):
-        calculate_companion_magnitude(star_values, 0.001, bands)
+@pytest.mark.parametrize("mag, ratio, result", [
+    (1, 100, -4),
+    (10, 100, 5),
+    (5, 10000, -5),
+    (1, 1. / 100, 6),
+    (10, 1. / 100, 15),
+    (5, 1. / 10000, 15)
+])
+def test_calculate_comp_magnitude(mag, ratio, result):
+    """Test flux ratio to magnitude difference."""
+    magnitude = calculate_companion_magnitude(mag, ratio)
+    print(magnitude, result)
+    assert np.allclose(magnitude, result)
 
 
-def test_mag_table_search_band():
+def test_mag_table_search_band_fail():
     """One one band value is allowed."""
-    age = 5
     magnitudes = {"H": 1, "J": 4, "K": 5}
 
     with pytest.raises(ValueError):
-        magnitude_table_search(magnitudes, age, band=["H", "J", "K"], model="2003")
+        magnitude_table_search(magnitudes, age=5, band=["H", "J", "K"], model="2003")
 
 
 def test_mass_table_search_03():
@@ -267,28 +256,17 @@ def test_magnitude_table_search_15():
     assert mag_params_15["Mk"] == 9.91
 
 
-def test_magnitude_table_search_errors():
+@pytest.mark.parametrize("band", [
+    (["H", "K"]),
+    (("K",)),
+    (["K"]),
+    (["H", "K"]),
+])
+def test_magnitude_table_search_errors(band):
     """Test only takes one band as a str."""
-    # Check single band as list is ok.
     with pytest.raises(ValueError):
         # More than one band not allowed
-        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band=["H", "K"], model="2015")
-
-    with pytest.raises(ValueError):
-        # More than one band not allowed
-        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band=("K",), model="2015")
-
-    with pytest.raises(ValueError):
-        # More then one band not allowed
-        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band=["K"], model="2015")
-
-    with pytest.raises(ValueError):
-        # Bad band (Not present on cols)
-        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band="Z", model="2015")
-
-    with pytest.raises(ValueError):
-        # Band not in magnitudes given
-        magnitude_table_search({"K": 9.91, "H": 9.91}, 5, band="J", model="2015")
+        magnitude_table_search(magnitude=5, age=5, band=band, model="2015")
 
 
 # Need sys.argv fixture with teardown
@@ -312,10 +290,7 @@ def test_BDmass_parser():
 # Need sys.argv fixture with teardown
 def test_ratio_parser():
     """Test argparse function using sys.argv."""
-    sys.argv = []
-    test_args = "pytest HD30501 0.001 5 -b H -m 2015".split()
-    for arg in test_args:
-        sys.argv.append(arg)
+    sys.argv = "pytest HD30501 0.001 5 -b H -m 2015".split()
 
     args = ratio_parser()
     assert args.star_name == "HD30501"
@@ -342,64 +317,25 @@ def test_ratio_parser2():
     sys.argv = org_sysargv
 
 
-# Need sys.argv fixture with teardown
-def test_failing_ratio_parsers():
+@pytest.mark.parametrize("parse_string", [
+    "pytest HD30501 ratio 5 -b H K -m 2015",
+    "pytest HD30501 0.001 5 -b H K -m 2015 -z 4",
+    "pytest HD305010 0.01 5 -b Q",
+])
+def test_failing_ratio_parsers(parse_string):
     """Test argparse function using sys.argv."""
-    sys.argv = []
-    test_args = "pytest HD30501 ratio 5 -b H K -m 2015".split()
-    for arg in test_args:
-        sys.argv.append(arg)
-
+    sys.argv = parse_string.split()
     with pytest.raises(SystemExit):
         ratio_parser()  # ratio is not a number
 
-    sys.argv = []
-    test_args = "pytest HD30501 0.001 5 -b H K -m 2015 -z 4".split()  # unknown parameter -z
-    for arg in test_args:
-        sys.argv.append(arg)
 
-    with pytest.raises(SystemExit):
-        ratio_parser()  # unknown parameter -z
-
-    # Invalid choice of band
-    sys.argv = []
-    test_args = "pytest HD305010 0.01 5 -b Q".split()  # invlaid choice Q
-    for arg in test_args:
-        sys.argv.append(arg)
-
-    with pytest.raises(SystemExit):
-        ratio_parser()  # SystemExit
-
-    sys.argv = org_sysargv
-
-
-# Need sys.argv fixture with teardown
-# @pytest.mark.xfail
-def test_failing_mass_parsers():
+@pytest.mark.parametrize("parse_string", [
+    "pytest HD30501 mass 5 -b H K -m 2015",
+    "pytest HD30501 mass 5 -b H K -m 2003-z 4",
+    "pytest HD305010 100 5 -b Q",
+])
+def test_failing_mass_parsers(parse_string):
     """Test argparse function using sys.argv."""
-    sys.argv = []
-    test_args = "pytest HD30501 mass 5 -b H K -m 2015".split()
-    for arg in test_args:
-        sys.argv.append(arg)
-
+    sys.argv = parse_string.split()
     with pytest.raises(SystemExit):
         mass_parser()  # ratio is not a number
-
-    sys.argv = []
-    test_args = "pytest HD30501 mass 5 -b H K -m 2003-z 4".split()  # unknown parameter -z
-    for arg in test_args:
-        sys.argv.append(arg)
-
-    with pytest.raises(SystemExit):
-        mass_parser()  # unknown parameter -z
-
-    # Invalid choice of band
-    sys.argv = []
-    test_args = "pytest HD305010 100 5 -b Q".split()  # invlaid choice Q
-    for arg in test_args:
-        sys.argv.append(arg)
-
-    with pytest.raises(SystemExit):
-        mass_parser()  # SystemExit
-
-    sys.argv = org_sysargv
