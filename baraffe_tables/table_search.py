@@ -70,10 +70,10 @@ def mass_table_search(companion_mass: float, age: float, model: str = "2003") ->
     Parameters
     ----------
     companion_mass: float
-        Companion Mass (Msun)
+        Companion Mass (M_sun)
     age: float
         Age of star/system (Gyr).
-    model: int
+    model: str
        Year of Baraffe model to use [2003 (default), 2015].
 
     Returns
@@ -86,23 +86,23 @@ def mass_table_search(companion_mass: float, age: float, model: str = "2003") ->
 
     ref_val = companion_mass
     ref_col = "M/Ms"
-    companion_parameters = table_interpolation(model_data, ref_val, ref_col, age, model)
+    companion_parameters = table_interpolation(model_data, ref_col, ref_val)
     return companion_parameters  # as a dictionary
 
 
-def magnitude_table_search(magnitudes: Dict[str, float], age: float, band: str = "K",
+def magnitude_table_search(magnitude: float, age: float, band: str = "K",
                            model: str = "2003") -> Dict[str, float]:
     """Search Baraffe tables to find the companion entry given a band magnitude value.
 
     Parameters
     ----------
-    magnitudes: dict
+    magnitude: float
         Dictionary of (band: magnitude) pairs.
     age: float
         Age of star/system (Gyr).
     band: str
         Wavelength band to use.
-    model: int
+    model: str
        Year of Baraffe model to use [2003 (default), 2015].
 
     Returns
@@ -115,26 +115,42 @@ def magnitude_table_search(magnitudes: Dict[str, float], age: float, band: str =
     if not isinstance(band, str):
         raise ValueError('Band {0} was given, when not given as a single string.'.format(band))
 
-    model_data, cols = age_table(age, model=model)
-
-    if "M{}".format(band.lower()) not in cols:
-        raise ValueError("Band '{0!s}' is not in Baraffe tables.".format(band))
-
-    if band not in magnitudes.keys():
-        print("magnitudes", magnitudes)
-        raise ValueError("The band '{0!s}' given is not in the given magnitudes".format(band))
-
     ref_col = "M{}".format(band.lower())
-
-    ref_val = magnitudes[band]
-
-    companion_parameters = table_interpolation(model_data, ref_val, ref_col, age, model)
+    companion_parameters = baraffe_table_search(ref_col, magnitude, age, model)
 
     return companion_parameters  # as a dictionary
 
 
-def table_interpolation(data: Dict[str, List[float]], ref_value: float, ref_col: str,
-                        age: float, model: str) -> Dict[str, float]:
+def baraffe_table_search(column: str, value: float, age: float, model: str) -> Dict[str, float]:
+    """Search Baraffe tables to find the companion entry given a column and value.
+
+    Parameters
+    ----------
+    column: sr
+        Dictionary of (band: magnitude) pairs.
+    age: float
+        Age of star/system (Gyr).
+    value: float
+        Parameter value to find parameters for.
+    model: str
+        Year of Baraffe model to use [2003 (default), 2015].
+
+    Returns
+    -------
+    companion_parameters: Dict[str, float]
+        Companion parameters from Baraffe table, interpolated between the
+        rows to the provided magnitude.
+
+    """
+    found_table, cols = age_table(age, model=model)
+    if column not in cols:
+        raise ValueError("Column {} not in Baraffe table".format(column))
+
+    found_row = table_interpolation(found_table, column, value)
+    return found_row
+
+
+def table_interpolation(data: Dict[str, List[float]], ref_col: str, ref_value: float) -> Dict[str, float]:
     """Interpolate table data from dictionary to the reference value.
 
     Parameters
@@ -147,7 +163,7 @@ def table_interpolation(data: Dict[str, List[float]], ref_value: float, ref_col:
         Column name string.
     age: float
         Age of star?system (Gyr).
-    model: int
+    model: str
        Year of Baraffe model to use [2003 (default), 2015].
 
     Returns
