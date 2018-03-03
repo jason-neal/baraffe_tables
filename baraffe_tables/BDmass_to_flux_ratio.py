@@ -52,7 +52,7 @@ def _parser() -> object:
         description='Determine flux ratio of stellar companion')
     parser.add_argument('star_name', help='Input fits file to calibrate')
     parser.add_argument('companion_mass', help='Mass of companion (M_Jup)', type=float)
-    parser.add_argument('age', help='Star age (Gyr)', type=float)
+    parser.add_argument('stellar_age', help='Star age (Gyr)', type=float)
     parser.add_argument('-b', '--bands', choices=["All", "J", "H", "K"],
                         default=["All"], nargs="+", type=str,
                         help='Spectral Band to measure. Options=["All", "K", ""]')

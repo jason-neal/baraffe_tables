@@ -332,7 +332,7 @@ def test_BDmass_parser():
     args = mass_parser()
     assert args.star_name == "HD30501"
     assert args.companion_mass == 90
-    assert args.age == 5
+    assert args.stellar_age == 5
     assert args.bands == ["All"]
     assert args.model == "2003"
     assert args.area_ratio is True
@@ -352,7 +352,7 @@ def test_ratio_parser():
     assert args.star_name == "HD30501"
     assert args.flux_ratio == 0.001
     assert args.bands == ["H"]
-    assert args.age == 5
+    assert args.stellar_age == 5
     assert args.model == "2015"
     sys.argv = org_sysargv
 
@@ -368,7 +368,7 @@ def test_ratio_parser2():
     assert args.star_name == "HD30501"
     assert args.flux_ratio == 0.001
     assert args.bands == ["H", "K"]
-    assert args.age == 5
+    assert args.stellar_age == 5
     assert args.model == "2015"
     sys.argv = org_sysargv
 

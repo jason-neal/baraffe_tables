@@ -43,7 +43,7 @@ def _parser() -> object:
     parser.add_argument('star_name', help='Name of host star.', type=str)
     parser.add_argument('flux_ratio', type=float,
                         help='Flux ratio between host and companion (F_companion/F_host)')
-    parser.add_argument('age', help='Star age (Gyr)', type=float)
+    parser.add_argument('stellar_age', help='Star age (Gyr)', type=float)
     parser.add_argument("-b", "--bands", choices=["All", "J", "H", "K"], default=["K"],
                         help='Magnitude bands for the flux ratio value', nargs="+", type=str)
     parser.add_argument('-m', '--model', choices=['03', '15', '2003', '2015'],
