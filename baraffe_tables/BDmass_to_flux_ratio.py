@@ -25,7 +25,7 @@ model: str
 """
 # TODO: Interpolate between tables?
 from __future__ import division, print_function
-
+import logging
 import argparse
 import sys
 from typing import List, Optional
@@ -36,11 +36,12 @@ from astropy.constants import M_jup, M_sun
 try:
     from db_queries import get_stellar_params
     from table_search import mass_table_search
-    from calculations import calculate_flux_ratio, calculate_stellar_radius
+    from calculations import calculate_flux_ratio, calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
 except ImportError:
     from baraffe_tables.db_queries import get_stellar_params
     from baraffe_tables.table_search import mass_table_search
-    from baraffe_tables.calculations import calculate_flux_ratio, calculate_stellar_radius
+    from baraffe_tables.calculations import calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
+    #from baraffe_tables.old_code import calculate_flux_ratio
 
 
 def _parser() -> object:
@@ -102,7 +103,32 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
     # Get parameters for this mass and age
     companion_params = mass_table_search(companion_mass_solar, stellar_age, model=model)
 
-    flux_ratios = calculate_flux_ratio(star_params, companion_params, bands)
+    # flux_ratios = calculate_flux_ratio(star_params, companion_params, bands)
+    # print("old ratios", flux_ratios)
+
+    flux_ratios = {}
+    for band in bands:
+        try:
+            mag_label = "FLUX_{0!s}".format(band)
+            companion_mag_label = "M{0!s}".format(band.lower())
+
+            # Convert stellar apparent mag to absolute magnitudes.
+            apparent_mag = star_params[mag_label]
+            parallax = star_params['PLX_VALUE']
+            if parallax.unit != "mas":
+                raise ValueError("Parallax unit not correct")
+            absolute_mag = absolute_magnitude(parallax.data[0], apparent_mag.data[0])
+
+            # Model magnitudes are absolute
+            companion_mag = companion_params[companion_mag_label]
+
+            flux_ratio = flux_mag_ratio(absolute_mag, companion_mag)
+
+            flux_ratios.update({band: flux_ratio})
+        except:
+            logging.warning("Unable to calculate flux ratio for {} band".format(band))
+
+
 
     # Print flux ratios using a generator
     print("\nFlux ratios:")
