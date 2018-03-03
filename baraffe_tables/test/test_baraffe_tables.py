@@ -42,25 +42,43 @@ def test_ratio_to_BD_runs():
     assert ratio_main("HD30501", 0.01, 5) is 0
 
 
-def test_get_sweet_cat_temp():
-    """Test getting from sweet-cat."""
-    # hd number in SWEETCat
-    a = get_sweet_cat_temp("HD107383")
-    assert isinstance(a, float)
-    assert a == 4830
-    # hd number not in sweet
-    b = get_sweet_cat_temp("HD10")
-    assert b == False
-    # non hd id
+@pytest.mark.parametrize("hd_number, temp", [
+    ("HD107383", 4830),
+    ("HD99706", 4891),
+    ("HD195689", 10170)])
+def test_get_sweet_cat_temp(hd_number, temp):
+    """Test getting temperature from Sweet-cat."""
+    # HD number in SWEETCat
+    assert temp == get_sweet_cat_temp(hd_number)
+
+
+@pytest.mark.parametrize("hd_number", [
+    ("HD10"),
+    ("HD1234565830"),
+])
+def test_get_temp_star_not_in_sweet_cat_temp(hd_number):
+    """Test getting from Sweet-cat."""
+    # HD number in SWEETCat
+    assert get_sweet_cat_temp(hd_number) == 0
+
+
+def test_get_sweet_cat_temp_without_hd_number():
+    """Not hd number call not implemented yet."""
     with pytest.raises(NotImplementedError):
         get_sweet_cat_temp("GJ 422")  # in SWEETCat but not an hd number
 
+
+@pytest.mark.parametrize("hd_number", [
+    ("HD145934"),
+    ("HD41004B")
+])
+def test_get_sweet_cat_temp_no_temp(hd_number):
+    """Not hd number call not implemented yet.
+
     # 2 tries that line in Sweet-Cat that has no temperature
     # These are the only two that have hd numbers
-    c = get_sweet_cat_temp("HD145934")  # This may change if SWEETCat is updated
-    assert c == False
-    d = get_sweet_cat_temp("HD41004B")  # This may change if SWEETCat is updated
-    assert d == False
+    """
+    assert get_sweet_cat_temp(hd_number) == 0  # This may change if SWEETCat is updated
 
 
 def test_get_temperature_without_params_input():

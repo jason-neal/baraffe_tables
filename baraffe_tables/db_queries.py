@@ -64,14 +64,13 @@ def get_sweet_cat_temp(star_name: str) -> Union[float, int]:
         raise NotImplementedError
 
     # Assuming given as hd******
+    star_name = ''.join(star_name.split())
     hd_number = star_name[2:]
     # print("hd number ", hd_number)
     if hd_number in sc.data.hd.values:
         hd_entry = data[data.hd == hd_number]
 
-        if hd_entry.empty:
-            return 0
-        elif (hd_entry.iloc[0]["teff"] != 0) and (not np.isnan(hd_entry.iloc[0]["teff"])):
+        if (hd_entry.iloc[0]["teff"] != 0) and (not np.isnan(hd_entry.iloc[0]["teff"])):
             # Temp = 0 when doesn't exist
             return hd_entry.iloc[0]["teff"]
         else:
@@ -143,7 +142,7 @@ def calculate_bv_temp(b_mag: float, v_mag: float) -> float:
 
     # Interpolate from B-V
     b_minus_vs = np.array([-0.31, -0.24, -0.20, -0.12, 0.0, 0.15, 0.29,
-                         0.42, 0.58, 0.69, 0.85, 1.16, 1.42, 1.61])
+                           0.42, 0.58, 0.69, 0.85, 1.16, 1.42, 1.61])
     temps = np.array([34000, 23000, 18500, 13000, 9500, 8500, 7300,
                       6600, 5900, 5600, 5100, 4200, 3700, 3000])
 
