@@ -129,3 +129,58 @@ def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Op
         print("Band in calc magnitude ", band, "mags", magnitudes)
 
     return magnitudes
+
+
+def distance_modulus(d: float):
+    """Calculate distance modulus.
+
+    Input
+    -----
+    d: float
+        Distance in parsec
+    Output
+    ------
+    mu: float
+        m-M distance modulus
+    """
+    mu = 5 * np.log10(d) - 5
+    return mu
+
+
+def absolute_magnitude(parallax, m):
+    """Calculate the absolute magnitude based on distance and apparent mag.
+    Inputs
+    ------
+    parallax : float
+      The parallax in mas
+    m : float
+      The apparent magnitude
+    Output
+    ------
+    M : float
+      The absolute magnitude
+    """
+    d = 1. / (parallax * 1e-3)  # Conversion to arcsecond before deriving distance
+    mu = distance_modulus(d)
+    M = m - mu
+    return M
+
+
+def apparent_magnitude(parallax, M):
+    """Calculate the apparent magnitude based on distance and absolute mag.
+    Inputs
+    ------
+    parallax : float
+      The parallax in mas
+    M : float
+      The absolute magnitude
+    ------
+    m : float
+      The apparent magnitude
+    """
+    d = 1. / (parallax * 1e-3)  # Conversion to arcsecond before deriving distance
+    mu = distance_modulus(d)
+    m = M + mu
+    return m
+
+
