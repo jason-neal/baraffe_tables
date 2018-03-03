@@ -128,16 +128,11 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         except:
             logging.warning("Unable to calculate flux ratio for {} band".format(band))
 
-
-
-    # Print flux ratios using a generator
     print("\nFlux ratios:")
-    print_generator = (("{0!s} band star/companion Flux ratio = {1:4.2f}, "
-                        " >>> companion/star Flux ratio = {2:0.4f}").format(key, val, 1. / val)
-                       for key, val in flux_ratios.items() if key in bands)
-
-    for print_string in print_generator:
-        print(print_string)
+    for key, val in flux_ratios.items():
+        if key in bands:
+            print(("{0!s} band  companion/star Flux ratio = {2:0.4f}"
+                   " >>> star/companion Flux ratio = {1:4.2f}").format(key, 1. / val, val))
 
     if area_ratio:
         # Compare to area ratio
