@@ -1,6 +1,8 @@
 import numpy as np
 from baraffe_tables.calculations import distance_modulus, flux_mag_ratio, absolute_magnitude, apparent_magnitude
 import pytest
+from baraffe_tables.db_queries import calculate_bv_temp
+
 
 @pytest.mark.parametrize("mu, d", [
     (-4, 1.6),
@@ -40,3 +42,14 @@ def test_apparent_absolute_magnitude_reversible(m, parallax):
     assert np.allclose(apparent_magnitude(parallax, absolute_magnitude(parallax, m)), m)
 
 
+@pytest.mark.parametrize("v, b_v, teff", [
+    (4, -0.2, 18500),
+    (4.5, 1.5, 3405.26),
+    (6.0, 0.0, 9500),
+    (0.0, 0.0, 9500),
+    (18.0, 0.0, 9500),
+    (5, 0.75, 5412.5)])
+
+def test_calculate_bv_temp(v, b_v, teff):
+    """Test calculate_bv_temp returns correct temperatures."""
+    assert np.allclose(calculate_bv_temp(b_v + v, v), teff)
