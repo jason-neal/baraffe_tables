@@ -83,7 +83,7 @@ def calculate_stellar_radius(star_params: Any) -> float:
         Estimated Stellar Radius in solar radii.
 
     """
-    star_name = star_params['name'][0]
+    star_name = star_params['MAIN_ID'][0].decode("utf-8")
     teff_star = get_temperature(star_name, star_params)
 
     Ts_T = 5800. / teff_star  # Temperature ratio

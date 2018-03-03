@@ -146,8 +146,6 @@ def test_get_stellar_params():
     name = "HD219828"
     params = get_stellar_params(name)
 
-    # Check Name put into params
-    assert params["name"] == name
     assert params["Fe_H_Teff"][0] == 5842
     assert params["FLUX_B"] == 8.68
     assert params["FLUX_V"] == 8.01

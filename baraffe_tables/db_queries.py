@@ -29,9 +29,6 @@ def get_stellar_params(star_name: str) -> Any:
 
     result_table = customSimbad.query_object(star_name)
 
-    # Add star name to parameters
-    result_table["name"] = star_name
-
     return result_table
 
 
