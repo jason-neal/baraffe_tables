@@ -42,7 +42,6 @@ def test_ratio_to_BD_runs():
     assert ratio_main("HD30501", 0.01, 5) is 0
 
 
-@pytest.mark.xfail
 def test_get_sweet_cat_temp():
     """Test getting from sweet-cat."""
     # hd number in SWEETCat
@@ -51,7 +50,7 @@ def test_get_sweet_cat_temp():
     assert a == 4830
     # hd number not in sweet
     b = get_sweet_cat_temp("HD10")
-    assert b is False
+    assert b == False
     # non hd id
     with pytest.raises(NotImplementedError):
         get_sweet_cat_temp("GJ 422")  # in SWEETCat but not an hd number
@@ -59,9 +58,9 @@ def test_get_sweet_cat_temp():
     # 2 tries that line in Sweet-Cat that has no temperature
     # These are the only two that have hd numbers
     c = get_sweet_cat_temp("HD145934")  # This may change if SWEETCat is updated
-    assert c is False
+    assert c == False
     d = get_sweet_cat_temp("HD41004B")  # This may change if SWEETCat is updated
-    assert d is False
+    assert d == False
 
 
 @pytest.mark.xfail(raises=Exception)
