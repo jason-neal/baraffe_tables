@@ -63,7 +63,6 @@ def test_get_sweet_cat_temp():
     assert d == False
 
 
-@pytest.mark.xfail(raises=Exception)
 def test_get_temperature_without_params_input():
     """Test it calls for params itself, if needed.
 
@@ -78,7 +77,6 @@ def test_get_temperature_without_params_input():
     assert get_temperature(name, star_params=None) == get_temperature(name, star_params=params)
 
 
-@pytest.mark.xfail(raises=Exception)
 @pytest.mark.parametrize("name, temp", [
     ("HD215909", 4328),  # SIMBAD temp
     ("HD343246", 5754),  # SweetCat temp
@@ -95,13 +93,11 @@ def test_get_temperature_examples(name, temp):
     assert get_temperature(name) == temp
 
 
-@pytest.mark.xfail(raises=Exception)
 def test_get_temperature_ignores_zero_temp():
     star = "HD12116"  # Has zero temp in SIMBAD (Check this is not used)
     assert get_temperature(star) != 0
 
 
-@pytest.mark.xfail(raises=Exception)
 def test_get_stellar_params():
     """Test some values from SIMBAD database result.
 
@@ -124,7 +120,6 @@ def test_get_stellar_params():
 
 
 # Test Flux ratio to Mass
-@pytest.mark.xfail
 @pytest.mark.parametrize("band", ["H", "J", "K"])
 def test_mag_conversions(band):
     """Test converting from flux ratio to magnitude back to flux ratio etc.
