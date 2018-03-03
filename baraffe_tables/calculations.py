@@ -31,38 +31,6 @@ def flux_mag_ratio(mag1: float, mag2: float) -> float:
     flux_ratio = 10 ** (-0.4 * (mag1 - mag2))
     return flux_ratio
 
-def calculate_flux_ratio(star_params: Any, companion_params: Dict[str, float], bands: List[str]) -> Dict[str, float]:
-    """Flux ratios for the different bands in bands.
-
-    Parameters
-    ----------
-    star_params: dict
-       Stellar parameters with stellar magnitude values like "FLUX_K".
-    companion_params: dict
-        Companion parameters with magnitude values like "Mk".
-    bands: list of str
-        Bands to return ratios for.
-
-    Returns
-    -------
-    flux_ratios: dict
-       Flux ratios for each given band.
-
-    """
-    flux_ratios = dict()
-    for band in bands:
-        band = band.upper()
-        # flux_ratios[band] = flux_mag_ratio(float(star_params["FLUX_{0!s}".format(band)][0]),
-        #                                    companion_params["M{}".format(band.lower())])
-
-        # TODO: Need to check if FLUX is not empty. (returns a nan)
-        if np.isnan(star_params["FLUX_{0!s}".format(band)]):
-            print("Warning: The flux ratio is nan, check that there is the value in SIMBAD.")
-        flux_ratios[band] = flux_mag_ratio(float(star_params["FLUX_{0!s}".format(band)]),
-                                           companion_params["M{}".format(band.lower())])
-
-    return flux_ratios
-
 
 def calculate_stellar_radius(star_params: Any) -> float:
     """Based on R/Rs = (Ts/T)^2(L/Ls)^(1/2) equation.
