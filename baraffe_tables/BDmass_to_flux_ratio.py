@@ -34,14 +34,9 @@ from typing import List, Optional
 import numpy as np
 from astropy.constants import M_jup, M_sun
 
-try:
-    from db_queries import get_stellar_params
-    from table_search import mass_table_search
-    from calculations import calculate_flux_ratio, calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
-except ImportError:
-    from baraffe_tables.db_queries import get_stellar_params
-    from baraffe_tables.table_search import mass_table_search
-    from baraffe_tables.calculations import calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
+from baraffe_tables.db_queries import get_stellar_params
+from baraffe_tables.table_search import mass_table_search
+from baraffe_tables.calculations import calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
 
 
 def _parser() -> object:
