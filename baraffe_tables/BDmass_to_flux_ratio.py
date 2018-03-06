@@ -129,10 +129,13 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
             logging.warning("Unable to calculate flux ratio for {} band".format(band))
 
     print("\nFlux ratios:")
-    for key, val in flux_ratios.items():
-        if key in bands:
-            print(("{0!s} band  companion/star Flux ratio = {2:0.4f}"
-                   " >>> star/companion Flux ratio = {1:4.2f}").format(key, 1. / val, val))
+    for band in bands:
+        try:
+            value = flux_ratios[band]
+            print(("{0!s} band  companion/star Flux ratio = {2:5.4f}"
+                   " >>> star/companion Flux ratio = {1:4.4f}").format(band, 1. / value, value))
+        except:
+            pass
 
     if area_ratio:
         # Compare to area ratio
