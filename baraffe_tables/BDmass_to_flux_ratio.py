@@ -65,11 +65,14 @@ def _parser() -> object:
                         help="Print more parameters for paper.")
     parser.add_argument("-s", "--star_pars", default=False, action="store_true",
                         help="Print star parameters for paper.")
+    parser.add_argument("-n", "--noise", default=False, action="store_true",
+                        help="Print noise ratios.")
     return parser.parse_args()
 
 
 def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optional[List[str]] = None,
-         model: str = "2003", area_ratio: bool = False, full_table: bool = False, star_pars: bool = False) -> int:
+         model: str = "2003", area_ratio: bool = False, full_table: bool = False, star_pars: bool = False,
+         noise: bool = False) -> int:
     """Compute flux/contrast ratio between a stellar host and companion.
 
     Parameters
@@ -90,6 +93,8 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         Print other parameters need for paper table.
     star_pars: bool
         Print star parameters also.
+    noise: bool
+        Calculate Noise ratios.
 
     """
     if (bands is None) or ("All" in bands):
@@ -138,15 +143,16 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
             pass
 
     # Noise ratio
-    print("\nNoise ratios ratios:")
-    for band in bands:
-        try:
-            value = flux_ratios[band]  # Fa/Fb
-            # Nb/Na =  sqrt(2) * sqrt(Fa/Fb)
-            noise_ratio = np.sqrt(2) * np.sqrt(value)
-            print("{0!s} band  Noise_companion / Noise_star  = {1:5.4f}".format(band, noise_ratio))
-        except:
-            pass
+    if noise:
+        print("\nNoise ratios ratios:")
+        for band in bands:
+            try:
+                value = flux_ratios[band]  # Fa/Fb
+                # Nb/Na =  sqrt(2) * sqrt(Fa/Fb)
+                noise_ratio = np.sqrt(2) * np.sqrt(value)
+                print("{0!s} band  Noise_companion / Noise_star  = {1:5.4f}".format(band, noise_ratio))
+            except:
+                pass
 
     if area_ratio:
         # Compare to area ratio
