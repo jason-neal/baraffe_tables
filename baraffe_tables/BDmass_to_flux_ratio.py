@@ -137,6 +137,17 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         except:
             pass
 
+    # Noise ratio
+    print("\nNoise ratios ratios:")
+    for band in bands:
+        try:
+            value = flux_ratios[band]  # Fa/Fb
+            # Nb/Na =  sqrt(2) * sqrt(Fa/Fb)
+            noise_ratio = np.sqrt(2) * np.sqrt(value)
+            print("{0!s} band  Noise_companion / Noise_star  = {1:5.4f}".format(band, noise_ratio))
+        except:
+            pass
+
     if area_ratio:
         # Compare to area ratio
         Rstar = calculate_stellar_radius(star_params)
