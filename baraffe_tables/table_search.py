@@ -1,4 +1,5 @@
 """Code to obtain and find row in Baraffe tables."""
+import warnings
 from typing import Dict, List, Tuple
 
 import numpy as np
@@ -174,6 +175,7 @@ def table_interpolation(data: Dict[str, List[float]], ref_col: str, ref_value: f
         Result from interpolation of each dict item to the reference.
 
     """
+    reversed = False
     result_parameters = {}
     for key in data.keys():
         x_data = data[ref_col][::-1]
@@ -183,10 +185,19 @@ def table_interpolation(data: Dict[str, List[float]], ref_col: str, ref_value: f
             # Reverse data if not increasing.
             x_data = x_data[::-1]
             y_data = y_data[::-1]
+            reversed = True
 
         result_parameters[key] = np.interp(ref_value, x_data, y_data)
 
         if isinstance(result_parameters[key], (np.ndarray, list)):
             result_parameters[key] = result_parameters[key][0]
+
+    # Raising warning if value outside bounds of table
+    result = np.interp(ref_value, x_data, y_data, left=-99999999, right=99999999)
+    indicator = result * (-1) ** (reversed)
+    if indicator == -99999999:
+        warnings.warn("Interpolated values are off the lower bound of the table.")
+    elif indicator == 99999999:
+        warnings.warn("Interpolated values are off the upper bound of the table.")
 
     return result_parameters

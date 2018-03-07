@@ -14,7 +14,7 @@ from baraffe_tables.db_queries import (get_stellar_params, get_sweet_cat_temp,
 from baraffe_tables.flux_ratio_to_BDmass import _parser as ratio_parser
 from baraffe_tables.flux_ratio_to_BDmass import main as ratio_main
 from baraffe_tables.table_search import (age_table, magnitude_table_search,
-                                         mass_table_search)
+                                         mass_table_search, baraffe_table_search)
 
 org_sysargv = sys.argv
 
@@ -332,3 +332,41 @@ def test_failing_mass_parsers(parse_string):
     sys.argv = parse_string.split()
     with pytest.raises(SystemExit):
         mass_parser()  # ratio is not a number
+
+
+@pytest.mark.parametrize("col", ["G", 7, "RRs"])
+@pytest.mark.parametrize("model", [2003, 2015])
+def test_table_search_invalid_parameter(col, model):
+    with pytest.raises(ValueError):
+        baraffe_table_search(col, 1, age=5, model=model)
+
+@pytest.mark.parametrize("model", ["2003", "2015"])
+@pytest.mark.parametrize("age", [0.5, 4.5])
+@pytest.mark.parametrize("col, value", [
+    ("M/Ms", 0.08),
+
+])
+def test_table_search_returns_the_value_inputed(col, value, age, model):
+    """Test the input value is returned in the result."""
+    result = baraffe_table_search(col, value, age=age, model=model)
+    assert result[col] == value
+
+
+
+@pytest.mark.parametrize("col, value, age, model, bound", [
+    ("M/Ms", 500, 5, "03", "upper"),
+    ("M/Ms", 0.06, 5, "15", "lower"),
+    ("Teff", 100, 1, "03", "lower"),
+    ("Teff", 10000, 2, "15","upper"),
+    ("Mk", 38, 0.1, "03","lower"),
+    ("Mk", 1, 2, "15", "upper"),
+])
+#@pytest.mark.xfail(strict=True)
+def test_table_search_outside_bound_produces_error(col, value, age, model, bound):
+    """Test the input value is returned in the result."""
+    # Assert that the warning is raised.
+    with pytest.warns(UserWarning) as record:
+        baraffe_table_search(col, value, age=age, model=model)
+    # assert "" in record
+    assert str(record[0].message) == "Interpolated values are off the {0!s} bound of the table.".format(bound)
+    assert False # Test not finished/correct yet
