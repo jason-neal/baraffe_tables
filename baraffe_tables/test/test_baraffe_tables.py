@@ -163,7 +163,7 @@ def test_table_searches(mass, model, age, band):
 @pytest.mark.parametrize("model", ["2003", "2015"])
 def test_age_table(age, model):
     """Select a Baraffe table of certain age and model."""
-    model_table, cols = age_table(age, model=model)
+    model_table, cols, __ = age_table(age, model=model)
 
     assert isinstance(model_table, dict)
     assert isinstance(cols, list)

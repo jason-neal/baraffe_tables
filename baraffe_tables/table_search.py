@@ -5,7 +5,7 @@ import numpy as np
 import pkg_resources
 
 
-def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], List[str]]:
+def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], List[str], float]:
     """Determine the correct Baraffe table to load.
 
     Parameters
@@ -21,6 +21,8 @@ def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], 
         The correct model table data.
     column_names: list of str
         List of the columns in the the table.
+    model_age: float
+        Age of table returned
 
     """
     if not isinstance(model, str):
@@ -61,7 +63,7 @@ def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], 
     for i, col in enumerate(cols):
         data_dict[col] = model_data[i]
 
-    return data_dict, cols
+    return data_dict, cols, model_age
 
 
 def mass_table_search(companion_mass: float, age: float, model: str = "2003") -> Dict[str, float]:
@@ -82,7 +84,7 @@ def mass_table_search(companion_mass: float, age: float, model: str = "2003") ->
         Companion parameters from Baraffe table, interpolated to the provided mass.
 
     """
-    model_data, cols = age_table(age, model=model)
+    model_data, cols, __ = age_table(age, model=model)
 
     ref_val = companion_mass
     ref_col = "M/Ms"
@@ -142,9 +144,9 @@ def baraffe_table_search(column: str, value: float, age: float, model: str) -> D
         rows to the provided magnitude.
 
     """
-    found_table, cols = age_table(age, model=model)
+    found_table, cols, model_age = age_table(age, model=model)
     if column not in cols:
-        raise ValueError("Column {} not in Baraffe table".format(column))
+        raise ValueError("Column {0} not in Baraffe table (age={1}, model={2})".format(column, model_age, model))
 
     found_row = table_interpolation(found_table, column, value)
     return found_row
