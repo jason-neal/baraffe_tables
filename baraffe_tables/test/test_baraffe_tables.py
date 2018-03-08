@@ -363,10 +363,10 @@ def test_table_search_returns_the_value_inputed(col, value, age, model):
 ])
 #@pytest.mark.xfail(strict=True)
 def test_table_search_outside_bound_produces_error(col, value, age, model, bound):
-    """Test the input value is returned in the result."""
-    # Assert that the warning is raised.
+    """Test the warnings when interpolation value outside the reference column values."""
+    # Check that the warning is raised.
     with pytest.warns(UserWarning) as record:
         baraffe_table_search(col, value, age=age, model=model)
-    # assert "" in record
-    assert str(record[0].message) == "Interpolated values are off the {0!s} bound of the table.".format(bound)
-    assert False # Test not finished/correct yet
+    # Check correct warning is raised.
+    assert len(record) == 1
+    assert str(record[0].message) == "Interpolated values are outside the {0!s} bound of {1!s}.".format(bound, col)

@@ -178,8 +178,8 @@ def table_interpolation(data: Dict[str, List[float]], ref_col: str, ref_value: f
     reversed = False
     result_parameters = {}
     for key in data.keys():
-        x_data = data[ref_col][::-1]
-        y_data = data[key][::-1]
+        x_data = data[ref_col]
+        y_data = data[key]
 
         if x_data[-1] < x_data[0]:
             # Reverse data if not increasing.
@@ -196,8 +196,8 @@ def table_interpolation(data: Dict[str, List[float]], ref_col: str, ref_value: f
     result = np.interp(ref_value, x_data, y_data, left=-99999999, right=99999999)
     indicator = result * (-1) ** (reversed)
     if indicator == -99999999:
-        warnings.warn("Interpolated values are off the lower bound of the table.")
+        warnings.warn("Interpolated values are outside the lower bound of {0!s}.".format(ref_col))
     elif indicator == 99999999:
-        warnings.warn("Interpolated values are off the upper bound of the table.")
+        warnings.warn("Interpolated values are outside the upper bound of {0!s}.".format(ref_col))
 
     return result_parameters
