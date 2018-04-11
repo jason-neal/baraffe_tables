@@ -5,6 +5,20 @@ from typing import Dict, List, Tuple
 import numpy as np
 import pkg_resources
 
+# Table model details
+model_ages_03 = ["0.001", "0.005", "0.010", "0.050", "0.100", "0.120",
+                 "0.500", "1.000", "5.000", "10.000"]
+cols_03 = ["M/Ms", "Teff", "L/Ls", "g", "R", "Mv",
+           "Mr", "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
+
+model_ages_15 = ["0.0005", "0.001", "0.003", "0.004", "0.005", "0.008",
+                 "0.010", "0.015", "0.020", "0.025", "0.030", "0.040",
+                 "0.050", "0.080", "0.100", "0.120", "0.200", "0.300",
+                 "0.400", "0.500", "0.625", "0.800", "1.000", "2.000",
+                 "3.000", "4.000", "5.000", "8.000", "10.000"]
+cols_15 = ["M/Ms", "Teff", "L/Ls", "g", "R/Rs", "Li/Li0", "Mv", "Mr",
+           "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
+
 
 def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], List[str], float]:
     """Determine the correct Baraffe table to load.
@@ -32,23 +46,15 @@ def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], 
         raise ValueError("Model value '{}' is not valid".format(model))
 
     if model in '2003':
-        modelages = ["0.001", "0.005", "0.010", "0.050", "0.100", "0.120",
-                     "0.500", "1.000", "5.000", "10.000"]
+        modelages = model_ages_03
         base_name = "data/Baraffe2003/BaraffeCOND2003-"
         skiprows = 18
-        cols = ["M/Ms", "Teff", "L/Ls", "g", "R", "Mv",
-                "Mr", "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
+        cols = cols_03
     else:
-        print("Using 2015 models.")
-        modelages = ["0.0005", "0.001", "0.003", "0.004", "0.005", "0.008",
-                     "0.010", "0.015", "0.020", "0.025", "0.030", "0.040",
-                     "0.050", "0.080", "0.100", "0.120", "0.200", "0.300",
-                     "0.400", "0.500", "0.625", "0.800", "1.000", "2.000",
-                     "3.000", "4.000", "5.000", "8.000", "10.000"]
+        modelages = model_ages_15
         base_name = "data/Baraffe2015/BaraffeBHAC15-"
         skiprows = 22
-        cols = ["M/Ms", "Teff", "L/Ls", "g", "R/Rs", "Li/Li0", "Mv", "Mr",
-                "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
+        cols = cols_15
 
     # Find closest model age.
     model_age = min(modelages, key=lambda x: abs(float(x) - age))  # Closest one
