@@ -92,5 +92,6 @@ setup(
     },
     scripts=["baraffe_tables/BDmass_to_flux_ratio.py",
              "baraffe_tables/flux_ratio_to_BDmass.py",
-             "baraffe_tables/query_baraffe.py"],
+             "baraffe_tables/query_baraffe.py",
+             "baraffe_tables/teff2mass.py"],
 )
