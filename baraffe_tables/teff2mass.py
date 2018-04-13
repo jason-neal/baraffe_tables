@@ -63,28 +63,67 @@ def main(temp: Union[float, int], logg: float, plot: bool = False) -> int:
 
     loggs_03 = []
     loggs_15 = []
+    masses_03 = []
+    masses_15 = []
+    radii_03 = []
+    radii_15 = []
+
     for age in ages_03:
         result = baraffe_table_search("Teff", temp, age, model="03")
+        masses_03.append(result["M/Ms"])
         loggs_03.append(result["g"])
+        radii_03.append(result["R"])
+
     for age in ages_15:
         result = baraffe_table_search("Teff", temp, age, model="15")
+        masses_15.append(result["M/Ms"])
         loggs_15.append(result["g"])
+        radii_15.append(result["R/Rs"])
 
     loggs_03 = np.asarray(loggs_03)
     loggs_15 = np.asarray(loggs_15)
+    masses_03 = np.asarray(masses_03)
+    masses_15 = np.asarray(masses_15)
+    radii_03 = np.asarray(radii_03)
+    radii_15 = np.asarray(radii_15)
 
     sim_age_15 = (ages_15[np.argmin(abs(loggs_15 - logg))])
     sim_age_03 = (ages_03[np.argmin(abs(loggs_03 - logg))])
+
     if plot:
+        plt.subplot(111)
         plt.axhline(logg, alpha=0.5)
-        plt.semilogx(ages_15, loggs_15, ".-", label="2015")
-        plt.semilogx(ages_03, loggs_03, ".-", label="2003")
-        plt.plot(sim_age_03, logg, "h", label="closest 03 age")
-        plt.plot(sim_age_15, logg, "+", label="closest 15 age")
+        plt.semilogx(ages_15, loggs_15, ".-", label="Baraffe 2015")
+        plt.semilogx(ages_03, loggs_03, ".-", label="Baraffe 2003")
+        plt.plot(sim_age_03, logg, "h", label="closest 03")
+        plt.plot(sim_age_15, logg, "+", label="closest 15")
         plt.xlabel("Age (Gyr)")
         plt.ylabel("logg (dex)")
         plt.legend()
         plt.title("Temperature {} K".format(temp))
+        plt.annotate("Exploring evolutionary models to \nfind the table/age that matches \nTemp & logg", xy=(.5, .35), xycoords="axes fraction")
+        plt.tight_layout()
+        plt.show()
+
+        plt.semilogx(ages_03, masses_03, "+-")
+        plt.semilogx(ages_15, masses_15, ".-")
+        plt.xlabel("Age (Gyr)")
+        plt.ylabel("Mass (M/Ms)")
+        plt.title("Temp= {}, Logg = {}".format(temp, logg))
+        plt.show()
+
+        plt.semilogx(ages_03, radii_03, "+-")
+        plt.semilogx(ages_15, radii_15, ".-")
+        plt.xlabel("Age (Gyr)")
+        plt.ylabel("Radii (R/Rs)")
+        plt.title("Temp= {}, Logg = {}".format(temp, logg))
+        plt.show()
+
+        plt.plot(radii_03, masses_03, "+-")
+        plt.plot(radii_15, masses_15, ".-")
+        plt.xlabel("Radii (R/Rs)")
+        plt.ylabel("Mass (M/Ms)")
+        plt.title("Temp= {}, Logg = {}".format(temp, logg))
         plt.show()
 
     # Since my cutoffs are around 3500K I will use the 2015 models
