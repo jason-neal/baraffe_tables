@@ -64,16 +64,16 @@ def main(temp: Union[float, int], logg: float, plot: bool = False) -> int:
     loggs_03 = []
     loggs_15 = []
     for age in ages_03:
-        result = baraffe_table_search("Teff", temp, age, "03")
+        result = baraffe_table_search("Teff", temp, age, model="03")
         loggs_03.append(result["g"])
     for age in ages_15:
-        result = baraffe_table_search("Teff", temp, age, "15")
+        result = baraffe_table_search("Teff", temp, age, model="15")
         loggs_15.append(result["g"])
 
     loggs_03 = np.asarray(loggs_03)
     loggs_15 = np.asarray(loggs_15)
-    sim_age_15 = (ages_15[np.argmin(abs(loggs_15 - logg))])
 
+    sim_age_15 = (ages_15[np.argmin(abs(loggs_15 - logg))])
     sim_age_03 = (ages_03[np.argmin(abs(loggs_03 - logg))])
     if plot:
         plt.axhline(logg, alpha=0.5)
@@ -98,7 +98,7 @@ def main(temp: Union[float, int], logg: float, plot: bool = False) -> int:
     result03["age"] = sim_age_03
 
     # Add jupyter mass
-    result15["M/Mjup"] = result["M/Ms"] * (M_sun / M_jup).value
+    result15["M/Mjup"] = result15["M/Ms"] * (M_sun / M_jup).value
     result03["M/Mjup"] = result03["M/Ms"] * (M_sun / M_jup).value
 
     if temp == result15["Teff"]:
