@@ -39,7 +39,7 @@ def _parser() -> object:
     parser.add_argument('temp', help='Temperature of star/BD', type=float)
     parser.add_argument('logg', help='Logg of star/BD', type=float)
     parser.add_argument('-p', '--plot', action="store_true",
-                        help='Plot the age-logg line', default='2003', type=str)
+                        help='Plot the age-logg line', default='2003')
     parser.add_argument("-f", "--full_table", default=False, action="store_true",
                         help="Print all parameters for found companion.")
     return parser.parse_args()
@@ -107,7 +107,7 @@ def main(temp: Union[float, int], logg: float, plot: bool = False) -> int:
     elif temp == result03["Teff"]:
         return result03
     else:
-        raise ValueError("Temp is not within either model grid")
+        raise ValueError("Temp {} is not within either model grid".format(temp))
 
 
 if __name__ == '__main__':
