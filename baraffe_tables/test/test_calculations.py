@@ -37,8 +37,6 @@ def test_flux_mag_ratio():
 @pytest.mark.parametrize("m", [5, 8.5, ])
 @pytest.mark.parametrize("parallax", [10, 50, 200.1])
 def test_apparent_absolute_magnitude_reversible(m, parallax):
-    M = absolute_magnitude(parallax, m)
-
     assert np.allclose(apparent_magnitude(parallax, absolute_magnitude(parallax, m)), m)
 
 
