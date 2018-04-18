@@ -36,6 +36,12 @@ install:
 
   - python setup.py install
 
+before_script:
+  # Pre-download the PyAData.
+  - travis_retry python -c "from PyAstronomy.pyasl import SWEETCat; SWEETCat()"
+  - travis_retry python -c "from astroquery.simbad import Simbad; Simbad()"
+
+
 script:
   - pytest --cov=baraffe_tables/ --cov-report term-missing --durations 5
   - coverage xml
