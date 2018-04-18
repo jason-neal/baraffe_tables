@@ -28,8 +28,8 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy astropy
   - source activate test-environment
 
-  - touch /home/travis/.pyaConfigWhere && echo "/home/travis/build/jason-neal/PyA_data" >> /home/travis/.pyaConfigWhere
-  - mkdir /home/travis/build/jason-neal/PyA_data
+  #- touch /home/travis/.pyaConfigWhere && echo "/home/travis/build/jason-neal/PyA_data" >> /home/travis/.pyaConfigWhere
+  #- mkdir /home/travis/build/jason-neal/PyA_data
 
   - travis_retry  pip install -r requirements/requirements.txt
   - travis_retry pip install -r requirements/test.txt
