@@ -29,9 +29,9 @@ install:
 
   - python setup.py install
   
-   # Setup PyAstronomy folder
-   - echo -n $HOME/PyAData > $HOME/.pyaConfigWhere
-   - mkdir $HOME/PyAData
+  # Setup PyAstronomy folder
+  - echo -n $HOME/PyAData > $HOME/.pyaConfigWhere
+  - mkdir $HOME/PyAData
 
 before_script:
   # Pre-download the PyAData.
