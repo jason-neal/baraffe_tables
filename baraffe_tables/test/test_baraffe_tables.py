@@ -99,7 +99,7 @@ def test_get_temperature_without_params_input():
 
 @pytest.mark.parametrize("name, temp", [
     ("HD215909", 4328),  # SIMBAD temp
-    ("HD343246", 5754),  # SweetCat temp
+    ("HD343246", 5703),  # SweetCat temp
 ])
 def test_get_temperature_examples(name, temp):
     """Test some temperatures."""
