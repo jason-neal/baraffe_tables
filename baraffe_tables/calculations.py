@@ -1,5 +1,5 @@
 """Calculations for flux ratios."""
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -28,45 +28,8 @@ def flux_mag_ratio(mag1: float, mag2: float) -> float:
         flux/contrast ratio between the two magnitudes.
 
     """
-    if isinstance(mag1, (int, float)) and isinstance(mag2, (int, float)):
-        # return 2.512**(mag2 - mag1)  # Approximation
-        return 10 ** (-0.4 * (mag1 - mag2))
-    else:
-        print(type(mag1), type(mag2))
-        raise ValueError("Magnitudes given were not floats or ints. Mag1 = {}, Mag2 = {}".format(mag1, mag2))
-
-
-def calculate_flux_ratio(star_params: Any, companion_params: Dict[str, float], bands: List[str]) -> Dict[str, float]:
-    """Flux ratios for the different bands in bands.
-
-    Parameters
-    ----------
-    star_params: dict
-       Stellar parameters with stellar magnitude values like "FLUX_K".
-    companion_params: dict
-        Companion parameters with magnitude values like "Mk".
-    bands: list of str
-        Bands to return ratios for.
-
-    Returns
-    -------
-    flux_ratios: dict
-       Flux ratios for each given band.
-
-    """
-    flux_ratios = dict()
-    for band in bands:
-        band = band.upper()
-        # flux_ratios[band] = flux_mag_ratio(float(star_params["FLUX_{0!s}".format(band)][0]),
-        #                                    companion_params["M{}".format(band.lower())])
-
-        # TODO: Need to check if FLUX is not empty. (returns a nan)
-        if np.isnan(star_params["FLUX_{0!s}".format(band)]):
-            print("Warning: The flux ratio is nan, check that there is the value in SIMBAD.")
-        flux_ratios[band] = flux_mag_ratio(float(star_params["FLUX_{0!s}".format(band)]),
-                                           companion_params["M{}".format(band.lower())])
-
-    return flux_ratios
+    flux_ratio = 10 ** (-0.4 * (mag1 - mag2))
+    return flux_ratio
 
 
 def calculate_stellar_radius(star_params: Any) -> float:
@@ -80,10 +43,10 @@ def calculate_stellar_radius(star_params: Any) -> float:
     Returns
     -------
     R_Rs: float
-        Esitmated Stellar Radius in solar radii.
+        Estimated Stellar Radius in solar radii.
 
     """
-    star_name = star_params['name'][0]
+    star_name = star_params['MAIN_ID'][0].decode("utf-8")
     teff_star = get_temperature(star_name, star_params)
 
     Ts_T = 5800. / teff_star  # Temperature ratio
@@ -94,43 +57,82 @@ def calculate_stellar_radius(star_params: Any) -> float:
     return R_Rs  # Radius of star in solar radii
 
 
-def calculate_companion_magnitude(star_params: Any, flux_ratio: float, bands: Optional[List[str]] = None) -> Dict[
-    str, float]:
+def calculate_companion_magnitude(star_mag: float, flux_ratio: float) -> float:
     """Calculate companion magnitude from flux ratio.
 
     Using the equation m - n = -2.5 * log_10(F_m / F_n).
 
     Parameters
     ----------
-    star_params: dict
-        Parameters for the host star.
+    star_mag: float
+        Host star magnitude.
     flux_ratio: float
         Flux ratio for the system (F_companion/F_host).
-    bands: List[str]
-        Bands to use. default = ["K"]
 
     Returns
     -------
-    magnitudes: dict
-        Magnitudes for the companion in the J, H, and K bands.
+    magnitude: float
+        Companion magnitude.
 
     Note
     ----
-    This is possibly not quite the correct implemenation as we are
+    This is possibly not quite the correct implementation as we are
     only using a single flux_ratio value.
 
     """
-    if bands is None:
-        bands = ["K"]
 
-    magnitudes = dict()
+    magnitude = star_mag - 2.5 * np.log10(flux_ratio)
+    return magnitude
 
-    for band in bands:
-        band = band.upper()
-        if band in ["J", "H", "K"]:
-            magnitudes[band] = star_params["FLUX_{0!s}".format(band)] - 2.5 * np.log10(flux_ratio)
-        else:
-            raise ValueError("Magnitude band {0!s} was not in parameter dictionaries.".format(band))
-        print("Band in calc magnitude ", band, "mags", magnitudes)
 
-    return magnitudes
+def distance_modulus(d: float):
+    """Calculate distance modulus.
+
+    Input
+    -----
+    d: float
+        Distance in parsec
+    Output
+    ------
+    mu: float
+        m-M distance modulus
+    """
+    mu = 5 * np.log10(d) - 5
+    return mu
+
+
+def absolute_magnitude(parallax, m):
+    """Calculate the absolute magnitude based on distance and apparent mag.
+    Inputs
+    ------
+    parallax : float
+      The parallax in mas
+    m : float
+      The apparent magnitude
+    Output
+    ------
+    M : float
+      The absolute magnitude
+    """
+    d = 1. / (parallax * 1e-3)  # Conversion to arcsecond before deriving distance
+    mu = distance_modulus(d)
+    M = m - mu
+    return M
+
+
+def apparent_magnitude(parallax, M):
+    """Calculate the apparent magnitude based on distance and absolute mag.
+    Inputs
+    ------
+    parallax : float
+      The parallax in mas
+    M : float
+      The absolute magnitude
+    ------
+    m : float
+      The apparent magnitude
+    """
+    d = 1. / (parallax * 1e-3)  # Conversion to arcsecond before deriving distance
+    mu = distance_modulus(d)
+    m = M + mu
+    return m

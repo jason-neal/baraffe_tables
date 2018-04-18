@@ -18,6 +18,21 @@ def get_stellar_params(star_name: str) -> Any:
     -------
     result_table: votable, dict-like
 
+    Notes
+    -----
+    result_table.colnames = ['MAIN_ID',
+    'RA', 'DEC', 'RA_PREC', 'DEC_PREC',
+    'COO_ERR_MAJA', 'COO_ERR_MINA', 'COO_ERR_ANGLE', 'COO_QUAL', 'COO_WAVELENGTH', 'COO_BIBCODE',
+    'PLX_VALUE', 'PLX_PREC', 'PLX_ERROR', 'PLX_QUAL', 'PLX_BIBCODE',
+    'SP_TYPE',
+    'FILTER_NAME_B', 'FLUX_B', 'FLUX_ERROR_B', 'FLUX_SYSTEM_B', 'FLUX_BIBCODE_B', 'FLUX_VAR_B', 'FLUX_MULT_B', 'FLUX_QUAL_B', 'FLUX_UNIT_B',
+    'FILTER_NAME_V', 'FLUX_V', 'FLUX_ERROR_V', 'FLUX_SYSTEM_V', 'FLUX_BIBCODE_V', 'FLUX_VAR_V', 'FLUX_MULT_V', 'FLUX_QUAL_V', 'FLUX_UNIT_V',
+    'FILTER_NAME_J', 'FLUX_J', 'FLUX_ERROR_J', 'FLUX_SYSTEM_J', 'FLUX_BIBCODE_J', 'FLUX_VAR_J', 'FLUX_MULT_J', 'FLUX_QUAL_J', 'FLUX_UNIT_J',
+    'FILTER_NAME_H', 'FLUX_H', 'FLUX_ERROR_H', 'FLUX_SYSTEM_H', 'FLUX_BIBCODE_H', 'FLUX_VAR_H', 'FLUX_MULT_H', 'FLUX_QUAL_H', 'FLUX_UNIT_H',
+    'FILTER_NAME_K', 'FLUX_K', 'FLUX_ERROR_K', 'FLUX_SYSTEM_K', 'FLUX_BIBCODE_K', 'FLUX_VAR_K', 'FLUX_MULT_K', 'FLUX_QUAL_K', 'FLUX_UNIT_K',
+    'Fe_H_Teff', 'Fe_H_log_g', 'Fe_H_Fe_H', 'Fe_H_flag', 'Fe_H_CompStar', 'Fe_H_CatNo', 'Fe_H_bibcode',
+    'name']
+
     """
     # return Magnitudes, parallax, Temp
     customSimbad = Simbad()
@@ -28,9 +43,6 @@ def get_stellar_params(star_name: str) -> Any:
                                     'fe_h')
 
     result_table = customSimbad.query_object(star_name)
-
-    # Add star name to parameters
-    result_table["name"] = star_name
 
     return result_table
 
@@ -52,14 +64,13 @@ def get_sweet_cat_temp(star_name: str) -> Union[float, int]:
         raise NotImplementedError
 
     # Assuming given as hd******
+    star_name = ''.join(star_name.split())
     hd_number = star_name[2:]
     # print("hd number ", hd_number)
     if hd_number in sc.data.hd.values:
         hd_entry = data[data.hd == hd_number]
 
-        if hd_entry.empty:
-            return 0
-        elif (hd_entry.iloc[0]["teff"] != 0) and (not np.isnan(hd_entry.iloc[0]["teff"])):
+        if (hd_entry.iloc[0]["teff"] != 0) and (not np.isnan(hd_entry.iloc[0]["teff"])):
             # Temp = 0 when doesn't exist
             return hd_entry.iloc[0]["teff"]
         else:
@@ -90,7 +101,7 @@ def get_temperature(star_name: str, star_params: Optional[Any] = None) -> float:
             print("SIMBAD Temperature was zero.")
             teff = None
         else:
-            good_temp = True
+            good_temp = teff
             print("Temperature obtained from Fe_H_Teff = {0:5.0f} K".format(good_temp))
             return teff
 
@@ -113,7 +124,7 @@ def get_temperature(star_name: str, star_params: Optional[Any] = None) -> float:
 
 
 def calculate_bv_temp(b_mag: float, v_mag: float) -> float:
-    """Calcualte Stellar Temperature from B-V magnitudes.
+    """Calculate Stellar Temperature from B-V magnitudes.
 
     Parameters
     ----------
@@ -130,9 +141,9 @@ def calculate_bv_temp(b_mag: float, v_mag: float) -> float:
     b_v = b_mag - v_mag
 
     # Interpolate from B-V
-    bminusvs = np.array([-0.31, -0.24, -0.20, -0.12, 0.0, 0.15, 0.29,
-                         0.42, 0.58, 0.69, 0.85, 1.16, 1.42, 1.61])
+    b_minus_vs = np.array([-0.31, -0.24, -0.20, -0.12, 0.0, 0.15, 0.29,
+                           0.42, 0.58, 0.69, 0.85, 1.16, 1.42, 1.61])
     temps = np.array([34000, 23000, 18500, 13000, 9500, 8500, 7300,
                       6600, 5900, 5600, 5100, 4200, 3700, 3000])
 
-    return np.interp(b_v, bminusvs, temps)[0]
+    return np.interp(b_v, b_minus_vs, temps)

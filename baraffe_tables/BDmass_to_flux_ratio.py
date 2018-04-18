@@ -27,20 +27,16 @@ model: str
 from __future__ import division, print_function
 
 import argparse
+import logging
 import sys
 from typing import List, Optional
 
 import numpy as np
 from astropy.constants import M_jup, M_sun
 
-try:
-    from db_queries import get_stellar_params
-    from table_search import mass_table_search
-    from calculations import calculate_flux_ratio, calculate_stellar_radius
-except ImportError:
-    from baraffe_tables.db_queries import get_stellar_params
-    from baraffe_tables.table_search import mass_table_search
-    from baraffe_tables.calculations import calculate_flux_ratio, calculate_stellar_radius
+from baraffe_tables.db_queries import get_stellar_params
+from baraffe_tables.table_search import mass_table_search
+from baraffe_tables.calculations import calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
 
 
 def _parser() -> object:
@@ -52,7 +48,7 @@ def _parser() -> object:
         description='Determine flux ratio of stellar companion')
     parser.add_argument('star_name', help='Input fits file to calibrate')
     parser.add_argument('companion_mass', help='Mass of companion (M_Jup)', type=float)
-    parser.add_argument('age', help='Star age (Gyr)', type=float)
+    parser.add_argument('stellar_age', help='Star age (Gyr)', type=float)
     parser.add_argument('-b', '--bands', choices=["All", "J", "H", "K"],
                         default=["All"], nargs="+", type=str,
                         help='Spectral Band to measure. Options=["All", "K", ""]')
@@ -60,15 +56,18 @@ def _parser() -> object:
                         help='Baraffe model to use [2003, 2015]', default='2003', type=str)
     parser.add_argument("-a", "--area_ratio", default=False, action="store_true",
                         help="Calculate the area ratio.")
-    parser.add_argument("-p", "--paper", default=False, action="store_true",
+    parser.add_argument("-f", "--full_table", default=False, action="store_true",
                         help="Print more parameters for paper.")
     parser.add_argument("-s", "--star_pars", default=False, action="store_true",
                         help="Print star parameters for paper.")
+    parser.add_argument("-n", "--noise", default=False, action="store_true",
+                        help="Print noise ratios.")
     return parser.parse_args()
 
 
 def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optional[List[str]] = None,
-         model: str = "2003", area_ratio: bool = False, paper: bool = False, star_pars: bool = False) -> int:
+         model: str = "2003", area_ratio: bool = False, full_table: bool = False, star_pars: bool = False,
+         noise: bool = False) -> int:
     """Compute flux/contrast ratio between a stellar host and companion.
 
     Parameters
@@ -89,6 +88,8 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         Print other parameters need for paper table.
     star_pars: bool
         Print star parameters also.
+    noise: bool
+        Calculate Noise ratios.
 
     """
     if (bands is None) or ("All" in bands):
@@ -102,16 +103,51 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
     # Get parameters for this mass and age
     companion_params = mass_table_search(companion_mass_solar, stellar_age, model=model)
 
-    flux_ratios = calculate_flux_ratio(star_params, companion_params, bands)
+    # flux_ratios = calculate_flux_ratio(star_params, companion_params, bands)
+    # print("old ratios", flux_ratios)
 
-    # Print flux ratios using a generator
+    flux_ratios = {}
+    for band in bands:
+        try:
+            mag_label = "FLUX_{0!s}".format(band)
+            companion_mag_label = "M{0!s}".format(band.lower())
+
+            # Convert stellar apparent mag to absolute magnitudes.
+            apparent_mag = star_params[mag_label]
+            parallax = star_params['PLX_VALUE']
+            if parallax.unit != "mas":
+                raise ValueError("Parallax unit not correct")
+            absolute_mag = absolute_magnitude(parallax.data[0], apparent_mag.data[0])
+
+            # Model magnitudes are absolute
+            companion_mag = companion_params[companion_mag_label]
+
+            flux_ratio = flux_mag_ratio(absolute_mag, companion_mag)
+
+            flux_ratios.update({band: flux_ratio})
+        except:
+            logging.warning("Unable to calculate flux ratio for {} band".format(band))
+
     print("\nFlux ratios:")
-    print_generator = (("{0!s} band star/companion Flux ratio = {1:4.2f}, "
-                        " >>> companion/star Flux ratio = {2:0.4f}").format(key, val, 1. / val)
-                       for key, val in flux_ratios.items() if key in bands)
+    for band in bands:
+        try:
+            value = flux_ratios[band]
+            print(("{0!s} band  companion/star Flux ratio = {2:5.4f}"
+                   " >>> star/companion Flux ratio = {1:4.4f}").format(band, 1. / value, value))
+        except:
+            pass
 
-    for print_string in print_generator:
-        print(print_string)
+    # Noise ratio
+    if noise:
+        print("\nNoise ratios ratios:")
+        for band in bands:
+            try:
+                value = flux_ratios[band]  # Fa/Fb
+                # Nb/Na =  sqrt(2) * sqrt(Fa/Fb)
+                noise_ratio = np.sqrt(2) * np.sqrt(value)
+                print("{0!s} band  Noise_companion / Noise_star  = {1:5.4f}".format(band, noise_ratio))
+            except:
+                pass
 
     if area_ratio:
         # Compare to area ratio
@@ -125,7 +161,7 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         print("Radius Ratio of companion/star    = {}".format(Rcomp_Rstar))
         print("Area Ratio of companion/star      = {}".format(Rcomp_Rstar ** 2))
 
-    if paper:
+    if full_table:
         print(companion_params)
         print(r"Host name, star M_K, companion_mass, companion Teff, companion_Mk, K_ratio")
         print(r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\\\n".format(star_name,

@@ -22,7 +22,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version="0.1",
 
-    description='Access the baraffe evolutionary tables.',
+    description='Access the Baraffe evolutionary tables.',
     long_description=long_description,
 
     # The project's main homepage.
@@ -91,5 +91,6 @@ setup(
         # ],
     },
     scripts=["baraffe_tables/BDmass_to_flux_ratio.py",
-             "baraffe_tables/flux_ratio_to_BDmass.py"],
+             "baraffe_tables/flux_ratio_to_BDmass.py",
+             "baraffe_tables/query_baraffe.py"],
 )
