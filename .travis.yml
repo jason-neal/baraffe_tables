@@ -41,7 +41,7 @@ before_script:
 
 script:
   - pytest --cov=baraffe_tables/ --cov-report term-missing --durations 5
-  - coverage xml
+  - coverage xml -i
 
 after_success:
   - coveralls
