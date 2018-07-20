@@ -25,7 +25,7 @@ install:
   - source activate test-environment
 
   - travis_retry  pip install -r requirements/requirements.txt
-  - travis_retry pip install -r requirements/test.txt
+  - travis_retry pip install -r requirements/requirements_dev.txt
 
   - python setup.py install
   
