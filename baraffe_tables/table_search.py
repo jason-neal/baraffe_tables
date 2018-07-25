@@ -20,6 +20,74 @@ cols_15 = ["M/Ms", "Teff", "L/Ls", "g", "R/Rs", "Li/Li0", "Mv", "Mr",
            "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
 
 
+def find_bounding_ages(age: float, model_ages: List[str]):
+    """ Find the two bounding model ages to age.
+
+    Uses numpy.seachsorted() to find where the age is located.
+
+    Parameters
+    ---------
+    age: float
+        Age to find position in model ages.
+    model_ages: List[str]
+        List of model ages.
+
+    Returns
+    -------
+    Lower_age: str
+        The smaller age.
+    upper_age: str
+        The larger age.
+
+    """
+    # TODO: Add tests for the find_bounding_ages
+    mages = np.sort(np.array(model_ages, dtype=np.float))
+
+    # Check sorted
+    if not np.all(mages[:-1] < mages[1:]):
+        raise ValueError("modelages is not sorted. Please sort first.")
+
+    indx = mages.searchsorted(age)
+    return model_ages[indx - 1], model_ages[indx]
+
+
+def interp_data_dicts(age: float, lower_age: str, lower_data: Dict, upper_age: str,
+                      upper_data: Dict):
+    """Interpolate two data dictionaries to a new age.
+
+    The keys should be the same. The lower age may have extra rows at the start which are removed.
+
+    (lower_age < age) and (upper_age > age)
+
+    """
+    # TODO: Add tests for the table interpolation
+    assert (float(lower_age) < age) and (
+                float(upper_age) > age), "age is not between lower_ageand upper_age!"
+    assert set(lower_data.keys()) == set(upper_data.keys()), "Data dicts do not have the same keys."
+    interp_data_dict = {}
+    for ii, key in enumerate(lower_data.keys()):
+        x1, x2 = float(lower_age), float(upper_age)
+        data1, data2 = lower_data[key], upper_data[key]
+
+        while len(data1) != len(data2):
+            # Lower age data may have more rows at lower masses so remove leading entries
+            data1 = data1[1:]
+
+        if np.all(data1 == data2):
+            result = data1
+        else:
+            # Interpolate each value 1 by one (Is there a vectorized way to do this?)
+            result = [round(np.interp(age, [x1, x2], [d1, d2]), 3) for d1, d2 in zip(data1, data2)]
+
+        for x, y, z in zip(data1, result, data2):
+            # Check between original values
+            assert (np.all(x <= y) and np.all(y <= z)) or (np.all(z <= y) and np.all(
+                y <= x)), "Interpolated value not between initial values."
+
+        interp_data_dict[key] = result
+    return interp_data_dict
+
+
 def age_table(age: float, model: str = "2003", age_interp=False) -> Tuple[
     Dict[str, List[float]], List[str], float]:
     """Determine the correct Baraffe table to load.
@@ -63,8 +131,24 @@ def age_table(age: float, model: str = "2003", age_interp=False) -> Tuple[
 
     if age_interp and (float(closest_age) != float(age)) and \
             (age > float(modelages[0])) and (age < float(modelages[-1])):
+        # TODO: Add tests for the table interpolation
         # Find two closest tables, interp values to given age.
-        pass
+        lower_age, upper_age = find_bounding_ages(age, modelages)
+        print(
+            "Interpolating tables {0} Gyr and {1} Gyr to {2} Gyr".format(lower_age, upper_age, age))
+
+        lower_data = model_age_table(base_name, lower_age, skiprows=skiprows)
+        upper_data = model_age_table(base_name, upper_age, skiprows=skiprows)
+
+        lower_data_dict = {}
+        upper_data_dict = {}
+        for i, col in enumerate(cols):
+            lower_data_dict[col] = lower_data[i]
+            upper_data_dict[col] = upper_data[i]
+
+        # Interpolate age tables together
+        data_dict = interp_data_dicts(age, lower_age, lower_data_dict, upper_age, upper_data_dict)
+        model_age = age
     else:
         # Find closest model age table only.
         model_age = closest_age

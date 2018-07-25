@@ -62,6 +62,8 @@ def _parser() -> object:
                         help="Print star parameters for paper.")
     parser.add_argument("-n", "--noise", default=False, action="store_true",
                         help="Print noise ratios.")
+    parser.add_argument("--age_interp", default=False, action="store_true",
+                        help="Interpolate age between tables, instead of closest age only.")
     return parser.parse_args()
 
 
