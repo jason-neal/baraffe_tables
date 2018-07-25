@@ -48,12 +48,14 @@ def _parser() -> object:
                         help="Print full table.")
     parser.add_argument("-s", "--star_pars", default=False, action="store_true",
                         help="Print star parameters for paper.")
+    parser.add_argument("--age_interp", default=False, action="store_true",
+                        help="Interpolate age between tables, instead of closest age only.")
     return parser.parse_args()
 
 
 def main(star_name: str, flux_ratio: float, stellar_age: float,
          bands: Optional[List[str]] = None, model: str = "2003",
-         star_pars: bool = False, full_table: bool = False) -> int:
+         star_pars: bool = False, full_table: bool = False, age_interp: bool = False) -> int:
     """Compute companion mass from flux ratio value.
 
     Parameters
@@ -72,6 +74,8 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
         Print all parameters in table.
     star_pars: bool
         Print star parameters also.
+    age_interp: bool
+        Interpolate tables across age. Default=False.
 
     """
     Jup_sol_mass = (M_sun / M_jup).value  # Jupiter's in 1 M_sol
@@ -100,7 +104,7 @@ def main(star_name: str, flux_ratio: float, stellar_age: float,
 
         # Find companion parameters that match these magnitudes
         companion_params = magnitude_table_search(companion_mag, stellar_age,
-                                                  band=band, model=model)
+                                                  band=band, model=model, age_interp=age_interp)
 
         # Print flux ratios using a generator
         print("Estimated Companion Mass from {0} band flux ratio".format(band.upper()))

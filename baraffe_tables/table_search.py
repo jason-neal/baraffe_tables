@@ -20,7 +20,8 @@ cols_15 = ["M/Ms", "Teff", "L/Ls", "g", "R/Rs", "Li/Li0", "Mv", "Mr",
            "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
 
 
-def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], List[str], float]:
+def age_table(age: float, model: str = "2003", age_interp=False) -> Tuple[
+    Dict[str, List[float]], List[str], float]:
     """Determine the correct Baraffe table to load.
 
     Parameters
@@ -29,6 +30,8 @@ def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], 
         Stellar age (Gyr).
     model: str
         Baraffe model version to use. options=[03, 15, 2003, 2015].
+    age_interp: bool
+        Interpolate tables across age. Default=False..
 
     Returns
     -------
@@ -56,24 +59,29 @@ def age_table(age: float, model: str = "2003") -> Tuple[Dict[str, List[float]], 
         skiprows = 22
         cols = cols_15
 
-    # Find closest model age.
-    model_age = min(modelages, key=lambda x: abs(float(x) - age))  # Closest one
-    model_id = "p".join(str(model_age).split("."))  # Replace . with p in number str
-    model_name = base_name + model_id + "Gyr.dat"
-    model_name = pkg_resources.resource_filename("baraffe_tables", model_name)
+    if age_interp:
+        # Find two closest tables, interp values to given age.
+        pass
+    else:
+        # Find closest model age table only.
+        model_age = min(modelages, key=lambda x: abs(float(x) - age))  # Closest one
+        model_id = "p".join(str(model_age).split("."))  # Replace . with p in number str
+        model_name = base_name + model_id + "Gyr.dat"
+        model_name = pkg_resources.resource_filename("baraffe_tables", model_name)
 
-    model_data = np.loadtxt(model_name, skiprows=skiprows, unpack=False)
-    model_data = model_data.T
+        model_data = np.loadtxt(model_name, skiprows=skiprows, unpack=False)
+        model_data = model_data.T
 
-    # Turn into Dict of values
-    data_dict = {}
-    for i, col in enumerate(cols):
-        data_dict[col] = model_data[i]
+        # Turn into Dict of values
+        data_dict = {}
+        for i, col in enumerate(cols):
+            data_dict[col] = model_data[i]
 
     return data_dict, cols, model_age
 
 
-def mass_table_search(companion_mass: float, age: float, model: str = "2003") -> Dict[str, float]:
+def mass_table_search(companion_mass: float, age: float, model: str = "2003",
+                      age_interp: bool = False) -> Dict[str, float]:
     """Search Baraffe tables to find the companion entry given a mass value.
 
     Parameters
@@ -84,6 +92,8 @@ def mass_table_search(companion_mass: float, age: float, model: str = "2003") ->
         Age of star/system (Gyr).
     model: str
        Year of Baraffe model to use [2003 (default), 2015].
+    age_interp: bool
+        Interpolate tables across age. Default=False.
 
     Returns
     -------
@@ -91,7 +101,7 @@ def mass_table_search(companion_mass: float, age: float, model: str = "2003") ->
         Companion parameters from Baraffe table, interpolated to the provided mass.
 
     """
-    model_data, cols, __ = age_table(age, model=model)
+    model_data, cols, __ = age_table(age, model=model, age_interp=age_interp)
 
     ref_val = companion_mass
     ref_col = "M/Ms"
@@ -100,7 +110,7 @@ def mass_table_search(companion_mass: float, age: float, model: str = "2003") ->
 
 
 def magnitude_table_search(magnitude: float, age: float, band: str = "K",
-                           model: str = "2003") -> Dict[str, float]:
+                           model: str = "2003", age_interp: bool = False) -> Dict[str, float]:
     """Search Baraffe tables to find the companion entry given a band magnitude value.
 
     Parameters
@@ -113,6 +123,8 @@ def magnitude_table_search(magnitude: float, age: float, band: str = "K",
         Wavelength band to use.
     model: str
        Year of Baraffe model to use [2003 (default), 2015].
+    age_interp: bool
+        Interpolate tables across age. Default=False.
 
     Returns
     -------
@@ -125,12 +137,13 @@ def magnitude_table_search(magnitude: float, age: float, band: str = "K",
         raise ValueError('Band {0} was given, when not given as a single string.'.format(band))
 
     ref_col = "M{}".format(band.lower())
-    companion_parameters = baraffe_table_search(ref_col, magnitude, age, model)
+    companion_parameters = baraffe_table_search(ref_col, magnitude, age, model, age_interp)
 
     return companion_parameters  # as a dictionary
 
 
-def baraffe_table_search(column: str, value: float, age: float, model: str) -> Dict[str, float]:
+def baraffe_table_search(column: str, value: float, age: float, model: str,
+                         age_interp: bool = False) -> Dict[str, float]:
     """Search Baraffe tables to find the companion entry given a column and value.
 
     Parameters
@@ -143,6 +156,8 @@ def baraffe_table_search(column: str, value: float, age: float, model: str) -> D
         Parameter value to find parameters for.
     model: str
         Year of Baraffe model to use [2003 (default), 2015].
+    age_interp: bool
+        Interpolate tables across age. Default=False.
 
     Returns
     -------
@@ -151,7 +166,7 @@ def baraffe_table_search(column: str, value: float, age: float, model: str) -> D
         rows to the provided magnitude.
 
     """
-    found_table, cols, model_age = age_table(age, model=model)
+    found_table, cols, model_age = age_table(age, model=model, age_interp=age_interp)
     if column not in cols:
         raise ValueError("Column {0} not in Baraffe table (age={1}, model={2})".format(column, model_age, model))
 

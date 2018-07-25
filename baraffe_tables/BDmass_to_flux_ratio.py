@@ -65,9 +65,11 @@ def _parser() -> object:
     return parser.parse_args()
 
 
-def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optional[List[str]] = None,
-         model: str = "2003", area_ratio: bool = False, full_table: bool = False, star_pars: bool = False,
-         noise: bool = False) -> int:
+def main(star_name: str, companion_mass: float, stellar_age: float,
+         bands: Optional[List[str]] = None,
+         model: str = "2003", area_ratio: bool = False, full_table: bool = False,
+         star_pars: bool = False,
+         noise: bool = False, age_interp: bool = False) -> int:
     """Compute flux/contrast ratio between a stellar host and companion.
 
     Parameters
@@ -90,6 +92,8 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
         Print star parameters also.
     noise: bool
         Calculate Noise ratios.
+    age_interp: bool
+        Interpolate tables across age. Default=False.
 
     """
     if (bands is None) or ("All" in bands):
@@ -98,10 +102,12 @@ def main(star_name: str, companion_mass: float, stellar_age: float, bands: Optio
     # Obtain Stellar parameters from astroquery
     star_params = get_stellar_params(star_name)  # returns a astroquery result table
 
-    companion_mass_solar = companion_mass * (M_jup / M_sun).value  # transform to solar mass for table search
+    companion_mass_solar = companion_mass * (
+                M_jup / M_sun).value  # transform to solar mass for table search
 
     # Get parameters for this mass and age
-    companion_params = mass_table_search(companion_mass_solar, stellar_age, model=model)
+    companion_params = mass_table_search(companion_mass_solar, stellar_age, model=model,
+                                         age_interp=age_interp)
 
     # flux_ratios = calculate_flux_ratio(star_params, companion_params, bands)
     # print("old ratios", flux_ratios)
