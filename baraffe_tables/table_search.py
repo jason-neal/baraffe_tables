@@ -59,18 +59,17 @@ def age_table(age: float, model: str = "2003", age_interp=False) -> Tuple[
         skiprows = 22
         cols = cols_15
 
-    if age_interp:
+    closest_age = min(modelages, key=lambda x: abs(float(x) - age))  # Closest one
+
+    if age_interp and (float(closest_age) != float(age)) and \
+            (age > float(modelages[0])) and (age < float(modelages[-1])):
         # Find two closest tables, interp values to given age.
         pass
     else:
         # Find closest model age table only.
-        model_age = min(modelages, key=lambda x: abs(float(x) - age))  # Closest one
-        model_id = "p".join(str(model_age).split("."))  # Replace . with p in number str
-        model_name = base_name + model_id + "Gyr.dat"
-        model_name = pkg_resources.resource_filename("baraffe_tables", model_name)
+        model_age = closest_age
 
-        model_data = np.loadtxt(model_name, skiprows=skiprows, unpack=False)
-        model_data = model_data.T
+        model_data = model_age_table(base_name, model_age, skiprows=skiprows)
 
         # Turn into Dict of values
         data_dict = {}
@@ -78,6 +77,17 @@ def age_table(age: float, model: str = "2003", age_interp=False) -> Tuple[
             data_dict[col] = model_data[i]
 
     return data_dict, cols, model_age
+
+
+def model_age_table(base_name, model_age, skiprows):
+    """Load in model age table."""
+    model_id = "p".join(str(model_age).split("."))  # Replace . with p in number str
+    model_name = base_name + model_id + "Gyr.dat"
+    model_name = pkg_resources.resource_filename("baraffe_tables", model_name)
+
+    model_data = np.loadtxt(model_name, skiprows=skiprows, unpack=False)
+    model_data = model_data.T
+    return model_data
 
 
 def mass_table_search(companion_mass: float, age: float, model: str = "2003",
