@@ -86,7 +86,7 @@ def interp_data_dicts(age: float, lower_age: str, lower_data: Dict[str, List[flo
 
 
 def age_table(age: float, model: str = "2003", age_interp=False) -> Tuple[
-    Dict[str, List[float]], List[str], float]:
+        Dict[str, List[float]], List[str], float]:
     """Determine the correct Baraffe table to load.
 
     Parameters
@@ -128,7 +128,6 @@ def age_table(age: float, model: str = "2003", age_interp=False) -> Tuple[
 
     if age_interp and (float(closest_age) != float(age)) and \
             (age > float(modelages[0])) and (age < float(modelages[-1])):
-        # TODO: Add tests for the table interpolation
         # Find two closest tables, interp values to given age.
         lower_age, upper_age = find_bounding_ages(age, modelages)
         print(
@@ -268,7 +267,7 @@ def baraffe_table_search(column: str, value: float, age: float, model: str,
 
 
 def table_interpolation(data: Dict[str, List[float]], ref_col: str, ref_value: float) -> Dict[
-    str, float]:
+        str, float]:
     """Interpolate table data from dictionary to the reference value.
 
     Parameters

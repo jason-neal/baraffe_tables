@@ -267,9 +267,7 @@ def test_mag_table_search_band_fail(age_interp):
 
 def test_mass_table_search_03():
     """That a value from the table returns the correct row."""
-    mass = 0.09
-    comp_params = mass_table_search(mass, 5, model="2003")
-    print(comp_params)
+    comp_params = mass_table_search(mass= 0.09, age=5, model="2003")
     assert comp_params["M/Ms"] == 0.09
     assert comp_params["Teff"] == 2622
     assert comp_params["R"] == 0.113
@@ -278,9 +276,7 @@ def test_mass_table_search_03():
 
 def test_mass_table_search_15():
     """Manual test of a 2015 table mass search."""
-    mass = 0.09
-    comp_params_15 = mass_table_search(mass, 5, model="2015")
-    print(comp_params_15)
+    comp_params_15 = mass_table_search(mass=0.09, age=5, model="2015")
     assert comp_params_15["M/Ms"] == 0.09
     assert comp_params_15["Teff"] == 2644
     assert comp_params_15["R/Rs"] == 0.113
@@ -289,8 +285,7 @@ def test_mass_table_search_15():
 
 def test_magnitude_table_search_03():
     """That a value from the table returns the correct row."""
-    mag_params = magnitude_table_search(10.04, 5, band="K", model="2003")
-    print("mag_params", mag_params)
+    mag_params = magnitude_table_search(10.04, age=5, band="K", model="2003")
     assert mag_params["M/Ms"] == 0.09
     assert mag_params["Teff"] == 2622
     assert mag_params["R"] == 0.113
@@ -299,7 +294,7 @@ def test_magnitude_table_search_03():
 
 def test_magnitude_table_search_15():
     """Manual test of a 2015 table magnitude search."""
-    mag_params_15 = magnitude_table_search(9.91, 5, band="K", model="2015")
+    mag_params_15 = magnitude_table_search(9.91, age=5, band="K", model="2015")
     assert mag_params_15["M/Ms"] == 0.09
     assert mag_params_15["Teff"] == 2644
     assert mag_params_15["R/Rs"] == 0.113
@@ -381,15 +376,6 @@ def test_failing_ratio_parsers(parse_string):
     with pytest.raises(SystemExit):
         ratio_parser()  # ratio is not a number
 
-
-@pytest.mark.parametrize("parse_string", [
-    "pytest HD30501 mass 5 -b H K -m 2015",
-    "pytest HD30501 mass 5 -b H K -m 2003-z 4",
-    "pytest HD305010 100 5 -b Q",
-])
-def test_failing_mass_parsers(parse_string):
-    """Test argparse function using sys.argv."""
-    sys.argv = parse_string.split()
     with pytest.raises(SystemExit):
         mass_parser()  # ratio is not a number
 
