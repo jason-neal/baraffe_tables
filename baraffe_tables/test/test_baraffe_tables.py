@@ -4,7 +4,6 @@ import sys
 import numpy as np
 import pytest
 from astropy.constants import M_jup, M_sun
-
 from baraffe_tables.BDmass_to_flux_ratio import _parser as mass_parser
 from baraffe_tables.BDmass_to_flux_ratio import main as mass_main
 from baraffe_tables.calculations import calculate_companion_magnitude
@@ -140,35 +139,62 @@ def test_mag_conversions(mag_1, mag_2):
     assert np.allclose(new_ratio, ratio)
 
 
-@pytest.mark.parametrize("mass, model", [(50, "2003"), (150, "2015")])
-@pytest.mark.parametrize("age", [1, 5, 10])
+@pytest.mark.parametrize("mass", [80, 100])
+@pytest.mark.parametrize("age", [1, 3.5, 5, 10])
 @pytest.mark.parametrize("band", ["H", "J", "K"])
-def test_table_searches(mass, model, age, band):
-    """That a given mass calculates a magnitude and that mag finds a correct mass."""
+def test_table_searches(mass, age, band, age_interp, baraffe_model):
+    """That a given mass calculates a magnitude and that mag finds a correct mass.
+
+    Narrow mass overlap window.
+    """
     start_sol_mass = mass * (M_jup / M_sun).value
 
     # Find magnitude from mass
-    mass_comp_params = mass_table_search(start_sol_mass, age=age, model=model)
+    mass_comp_params = mass_table_search(start_sol_mass, age=age, model=baraffe_model,
+                                         age_interp=age_interp)
     found_mag = mass_comp_params["M{0!s}".format(band.lower())]
 
     # Find mass from magnitude
-    mag_comp_params = magnitude_table_search(found_mag, age=age, band=band, model=model)
+    mag_comp_params = magnitude_table_search(found_mag, age=age, band=band, model=baraffe_model,
+                                             age_interp=age_interp)
     found_mass = mag_comp_params["M/Ms"]
 
     assert np.allclose(found_mass, start_sol_mass)
     assert np.allclose(found_mass * M_sun / M_jup, mass)  # Back int M_jup
 
 
-@pytest.mark.parametrize("age", [0.1, 1, 10])
-@pytest.mark.parametrize("model", ["2003", "2015"])
-def test_age_table(age, model):
+@pytest.mark.parametrize("mass, model", [(50, "03"), (160, "15")])
+@pytest.mark.parametrize("age", [1, 3.5, 5, 10])
+@pytest.mark.parametrize("band", ["H", "J", "K"])
+def test_table_searches_individual(mass, age, band, age_interp, model):
+    """That a given mass calculates a magnitude and that mag finds a correct mass.
+    Some wider extremes that do not work at the with the opposite model"""
+    start_sol_mass = mass * (M_jup / M_sun).value
+
+    # Find magnitude from mass
+    mass_comp_params = mass_table_search(start_sol_mass, age=age, model=model,
+                                         age_interp=age_interp)
+    found_mag = mass_comp_params["M{0!s}".format(band.lower())]
+
+    # Find mass from magnitude
+    mag_comp_params = magnitude_table_search(found_mag, age=age, band=band, model=model,
+                                             age_interp=age_interp)
+    found_mass = mag_comp_params["M/Ms"]
+
+    assert np.allclose(found_mass, start_sol_mass)
+    assert np.allclose(found_mass * M_sun / M_jup, mass)  # Back int M_jup
+
+
+@pytest.mark.parametrize("age", [0.1, 0.65, 1, 4.5, 7.893, 10.])
+def test_age_table(age, baraffe_model, age_interp):
     """Select a Baraffe table of certain age and model."""
-    model_table, cols, __ = age_table(age, model=model)
+    model_table, cols, __ = age_table(age, model=baraffe_model, age_interp=age_interp)
 
     assert isinstance(model_table, dict)
     assert isinstance(cols, list)
 
     for key in model_table:
+        print("type of value", type(model_table[key]))
         assert isinstance(model_table[key], np.ndarray)
 
     # check common columns are present
@@ -178,11 +204,23 @@ def test_age_table(age, model):
         assert header in cols
 
 
+@pytest.fixture(params=[False, True])
+def age_interp(request):
+    """Fixture for age_interp flag."""
+    return request.param
+
+
+@pytest.fixture(params=["2003", "2015", "03", "15"])
+def baraffe_model(request):
+    """Fixture for baraffe model."""
+    return request.param
+
+
 @pytest.mark.parametrize("model", ["2016", "", 2003, 15, "word"])
-def test_bad_model_age_table(model):
+def test_bad_model_age_table(model, age_interp):
     """Call model with wrong values."""
     with pytest.raises(ValueError):
-        age_table(5, model)
+        age_table(5, model, age_interp=age_interp)
 
 
 @pytest.mark.parametrize("mag, ratio, result", [
@@ -200,12 +238,13 @@ def test_calculate_comp_magnitude(mag, ratio, result):
     assert np.allclose(magnitude, result)
 
 
-def test_mag_table_search_band_fail():
+def test_mag_table_search_band_fail(age_interp):
     """One one band value is allowed."""
     magnitudes = {"H": 1, "J": 4, "K": 5}
 
     with pytest.raises(ValueError):
-        magnitude_table_search(magnitudes, age=5, band=["H", "J", "K"], model="2003")
+        magnitude_table_search(magnitudes, age=5, band=["H", "J", "K"], model="2003",
+                               age_interp=age_interp)
 
 
 def test_mass_table_search_03():
@@ -255,11 +294,11 @@ def test_magnitude_table_search_15():
     (["K"]),
     (["H", "K"]),
 ])
-def test_magnitude_table_search_errors(band):
+def test_magnitude_table_search_errors(band, age_interp):
     """Test only takes one band as a str."""
     with pytest.raises(ValueError):
         # More than one band not allowed
-        magnitude_table_search(magnitude=5, age=5, band=band, model="2015")
+        magnitude_table_search(magnitude=5, age=5, band=band, model="2015", age_interp=age_interp)
 
 
 # Need sys.argv fixture with teardown
@@ -276,6 +315,7 @@ def test_BDmass_parser():
     assert args.area_ratio is True
     assert args.full_table == True
     assert args.star_pars == True
+    assert args.age_interp == False
     sys.argv = org_sysargv
 
 
@@ -292,12 +332,13 @@ def test_ratio_parser():
     assert args.model == "2015"
     assert args.full_table == False
     assert args.star_pars == False
+    assert args.age_interp == False
     sys.argv = org_sysargv
 
 
 def test_ratio_parser2():
     """Test argparse function using sys.argv more than one band."""
-    sys.argv = "pytest HD30501 0.001 5 -m 2015 -b H K -f -s".split()
+    sys.argv = "pytest HD30501 0.001 5 -m 2015 -b H K -f -s --age_interp".split()
 
     args = ratio_parser()
     assert args.star_name == "HD30501"
@@ -307,6 +348,7 @@ def test_ratio_parser2():
     assert args.model == "2015"
     assert args.full_table == True
     assert args.star_pars == True
+    assert args.age_interp == True
     sys.argv = org_sysargv
 
 
@@ -335,38 +377,38 @@ def test_failing_mass_parsers(parse_string):
 
 
 @pytest.mark.parametrize("col", ["G", 7, "RRs"])
-@pytest.mark.parametrize("model", [2003, 2015])
-def test_table_search_invalid_parameter(col, model):
+def test_table_search_invalid_parameter(col, baraffe_model, age_interp):
     with pytest.raises(ValueError):
-        baraffe_table_search(col, 1, age=5, model=model)
+        baraffe_table_search(col, 1, age=5, model=baraffe_model, age_interp=age_interp)
 
-@pytest.mark.parametrize("model", ["2003", "2015"])
-@pytest.mark.parametrize("age", [0.5, 4.5])
+
+@pytest.mark.parametrize("age", [0.5, 4.5, 5.0])
 @pytest.mark.parametrize("col, value", [
     ("M/Ms", 0.08),
-
 ])
-def test_table_search_returns_the_value_inputed(col, value, age, model):
+def test_table_search_returns_the_value_inputed(col, value, age, age_interp, baraffe_model):
     """Test the input value is returned in the result."""
-    result = baraffe_table_search(col, value, age=age, model=model)
+    result = baraffe_table_search(col, value, age=age, model=baraffe_model, age_interp=age_interp)
     assert result[col] == value
 
 
-
-@pytest.mark.parametrize("col, value, age, model, bound", [
-    ("M/Ms", 500, 5, "03", "upper"),
-    ("M/Ms", 0.06, 5, "15", "lower"),
-    ("Teff", 100, 1, "03", "lower"),
-    ("Teff", 10000, 2, "15","upper"),
-    ("Mk", 38, 0.1, "03","lower"),
-    ("Mk", 1, 2, "15", "upper"),
+@pytest.mark.parametrize("col, value, age, bound", [
+    ("M/Ms", 500, 5, "upper"),
+    ("M/Ms", 0.0006, 5, "lower"),
+    ("Teff", 100, 1, "lower"),
+    ("Teff", 10000, 2, "upper"),
+    ("Mk", 38, 0.1, "lower"),
+    ("Mk", 1, 2, "upper"),
 ])
-#@pytest.mark.xfail(strict=True)
-def test_table_search_outside_bound_produces_error(col, value, age, model, bound):
+# @pytest.mark.xfail(strict=True)
+def test_table_search_outside_bound_produces_error(col, value, age, bound, age_interp,
+                                                   baraffe_model):
     """Test the warnings when interpolation value outside the reference column values."""
     # Check that the warning is raised.
     with pytest.warns(UserWarning) as record:
-        baraffe_table_search(col, value, age=age, model=model)
+        baraffe_table_search(col, value, age=age, model=baraffe_model, age_interp=age_interp)
     # Check correct warning is raised.
     assert len(record) == 1
-    assert str(record[0].message) == "Interpolated values are outside the {0!s} bound of {1!s}.".format(bound, col)
+    assert str(
+        record[0].message) == "Interpolated values are outside the {0!s} bound of {1!s}.".format(
+        bound, col)

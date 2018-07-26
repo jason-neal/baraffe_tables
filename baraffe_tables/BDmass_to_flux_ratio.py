@@ -23,7 +23,7 @@ model: str
     Choose between the 2003 and 2015 Baraffe modeling.
 
 """
-# TODO: Interpolate between tables?
+
 from __future__ import division, print_function
 
 import argparse
@@ -33,10 +33,9 @@ from typing import List, Optional
 
 import numpy as np
 from astropy.constants import M_jup, M_sun
-
+from baraffe_tables.calculations import calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
 from baraffe_tables.db_queries import get_stellar_params
 from baraffe_tables.table_search import mass_table_search
-from baraffe_tables.calculations import calculate_stellar_radius, flux_mag_ratio, absolute_magnitude
 
 
 def _parser() -> object:
@@ -105,7 +104,7 @@ def main(star_name: str, companion_mass: float, stellar_age: float,
     star_params = get_stellar_params(star_name)  # returns a astroquery result table
 
     companion_mass_solar = companion_mass * (
-                M_jup / M_sun).value  # transform to solar mass for table search
+            M_jup / M_sun).value  # transform to solar mass for table search
 
     # Get parameters for this mass and age
     companion_params = mass_table_search(companion_mass_solar, stellar_age, model=model,
@@ -153,7 +152,8 @@ def main(star_name: str, companion_mass: float, stellar_age: float,
                 value = flux_ratios[band]  # Fa/Fb
                 # Nb/Na =  sqrt(2) * sqrt(Fa/Fb)
                 noise_ratio = np.sqrt(2) * np.sqrt(value)
-                print("{0!s} band  Noise_companion / Noise_star  = {1:5.4f}".format(band, noise_ratio))
+                print("{0!s} band  Noise_companion / Noise_star  = {1:5.4f}".format(band,
+                                                                                    noise_ratio))
             except:
                 pass
 
@@ -173,11 +173,16 @@ def main(star_name: str, companion_mass: float, stellar_age: float,
         print(companion_params)
         print(r"Host name, star M_K, companion_mass, companion Teff, companion_Mk, K_ratio")
         print(r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\\\n".format(star_name,
-                                                                                       star_params["FLUX_K"][0],
+                                                                                       star_params[
+                                                                                           "FLUX_K"][
+                                                                                           0],
                                                                                        companion_mass,
-                                                                                       companion_params["Teff"],
-                                                                                       companion_params["Mk"],
-                                                                                       flux_ratios["K"]))
+                                                                                       companion_params[
+                                                                                           "Teff"],
+                                                                                       companion_params[
+                                                                                           "Mk"],
+                                                                                       flux_ratios[
+                                                                                           "K"]))
     if star_pars:
         print("\nStellar parameters:")
         star_params.pprint(show_unit=True)

@@ -20,7 +20,7 @@ cols_15 = ["M/Ms", "Teff", "L/Ls", "g", "R/Rs", "Li/Li0", "Mv", "Mr",
            "Mi", "Mj", "Mh", "Mk", "Mll", "Mm"]
 
 
-def find_bounding_ages(age: float, model_ages: List[str]):
+def find_bounding_ages(age: float, model_ages: List[str]) -> Tuple[str, str]:
     """ Find the two bounding model ages to age.
 
     Uses numpy.seachsorted() to find where the age is located.
@@ -40,19 +40,17 @@ def find_bounding_ages(age: float, model_ages: List[str]):
         The larger age.
 
     """
-    # TODO: Add tests for the find_bounding_ages
-    mages = np.sort(np.array(model_ages, dtype=np.float))
-
-    # Check sorted
-    if not np.all(mages[:-1] < mages[1:]):
-        raise ValueError("modelages is not sorted. Please sort first.")
-
-    indx = mages.searchsorted(age)
-    return model_ages[indx - 1], model_ages[indx]
+    age_array = np.asarray(model_ages)
+    m_ages = age_array.astype(np.float)
+    sortargs = np.argsort(m_ages)
+    indx = m_ages[sortargs].searchsorted(age)  # Where to put age in sorted numpy array
+    sorted_ages = age_array[sortargs]  # sort the array of strings
+    return sorted_ages[indx - 1], sorted_ages[indx]
 
 
-def interp_data_dicts(age: float, lower_age: str, lower_data: Dict, upper_age: str,
-                      upper_data: Dict):
+def interp_data_dicts(age: float, lower_age: str, lower_data: Dict[str, List[float]],
+                      upper_age: str,
+                      upper_data: Dict[str, List[float]]) -> Dict[str, List[float]]:
     """Interpolate two data dictionaries to a new age.
 
     The keys should be the same. The lower age may have extra rows at the start which are removed.
@@ -60,9 +58,8 @@ def interp_data_dicts(age: float, lower_age: str, lower_data: Dict, upper_age: s
     (lower_age < age) and (upper_age > age)
 
     """
-    # TODO: Add tests for the table interpolation
     assert (float(lower_age) < age) and (
-                float(upper_age) > age), "age is not between lower_ageand upper_age!"
+            float(upper_age) > age), "age is not between lower_age and upper_age!"
     assert set(lower_data.keys()) == set(upper_data.keys()), "Data dicts do not have the same keys."
     interp_data_dict = {}
     for ii, key in enumerate(lower_data.keys()):
@@ -84,7 +81,7 @@ def interp_data_dicts(age: float, lower_age: str, lower_data: Dict, upper_age: s
             assert (np.all(x <= y) and np.all(y <= z)) or (np.all(z <= y) and np.all(
                 y <= x)), "Interpolated value not between initial values."
 
-        interp_data_dict[key] = result
+        interp_data_dict[key] = np.asarray(result)
     return interp_data_dict
 
 
@@ -231,7 +228,8 @@ def magnitude_table_search(magnitude: float, age: float, band: str = "K",
         raise ValueError('Band {0} was given, when not given as a single string.'.format(band))
 
     ref_col = "M{}".format(band.lower())
-    companion_parameters = baraffe_table_search(ref_col, magnitude, age, model, age_interp)
+    companion_parameters = baraffe_table_search(ref_col, magnitude, age, model,
+                                                age_interp=age_interp)
 
     return companion_parameters  # as a dictionary
 
@@ -262,13 +260,15 @@ def baraffe_table_search(column: str, value: float, age: float, model: str,
     """
     found_table, cols, model_age = age_table(age, model=model, age_interp=age_interp)
     if column not in cols:
-        raise ValueError("Column {0} not in Baraffe table (age={1}, model={2})".format(column, model_age, model))
+        raise ValueError(
+            "Column {0} not in Baraffe table (age={1}, model={2})".format(column, model_age, model))
 
     found_row = table_interpolation(found_table, column, value)
     return found_row
 
 
-def table_interpolation(data: Dict[str, List[float]], ref_col: str, ref_value: float) -> Dict[str, float]:
+def table_interpolation(data: Dict[str, List[float]], ref_col: str, ref_value: float) -> Dict[
+    str, float]:
     """Interpolate table data from dictionary to the reference value.
 
     Parameters
