@@ -267,7 +267,7 @@ def test_mag_table_search_band_fail(age_interp):
 
 def test_mass_table_search_03():
     """That a value from the table returns the correct row."""
-    comp_params = mass_table_search(mass= 0.09, age=5, model="2003")
+    comp_params = mass_table_search(0.09, age=5, model="2003")
     assert comp_params["M/Ms"] == 0.09
     assert comp_params["Teff"] == 2622
     assert comp_params["R"] == 0.113
@@ -276,7 +276,7 @@ def test_mass_table_search_03():
 
 def test_mass_table_search_15():
     """Manual test of a 2015 table mass search."""
-    comp_params_15 = mass_table_search(mass=0.09, age=5, model="2015")
+    comp_params_15 = mass_table_search(0.09, age=5, model="2015")
     assert comp_params_15["M/Ms"] == 0.09
     assert comp_params_15["Teff"] == 2644
     assert comp_params_15["R/Rs"] == 0.113
