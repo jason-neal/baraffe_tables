@@ -110,18 +110,36 @@ def test_get_temperature_ignores_zero_temp():
     assert get_temperature(star) != 0
 
 
-def test_get_stellar_params():
-    """Test some values from SIMBAD database result."""
+@pytest.mark.xfail()
+@pytest.mark.parametrize("param_key, expected", [
+    ("FLUX_B", 8.68),
+    ("FLUX_V", 8.01),
+    ("FLUX_K", 6.530),
+    ('Fe_H_log_g', 4.19),  # log g
+    ('Fe_H_Fe_H', 0.16),  # metallicity
+])
+def test_get_stellar_params(param_key, expected):
+    """Test some values from SIMBAD database result.
+    Fails as a result of parameters changing in database
+    # """
+    name = "HD219828"
+    params = get_stellar_params(name)
+    assert params[param_key] == expected
+
+
+@pytest.mark.xfail()
+@pytest.mark.parametrize("param_key, expected", [
+    ("Fe_H_Teff", 5842),
+    ("PLX_VALUE", 14.0),  # parallax
+])
+def test_get_stellar_params_list(param_key, expected):
+    """Test list values from SIMBAD database result.
+    May Fail as a result of parameters changing in database
+    """
     name = "HD219828"
     params = get_stellar_params(name)
 
-    assert params["Fe_H_Teff"][0] == 5842
-    assert params["FLUX_B"] == 8.68
-    assert params["FLUX_V"] == 8.01
-    assert params["FLUX_K"] == 6.530
-    assert params["PLX_VALUE"][0] == 14.0  # parallax
-    assert params['Fe_H_log_g'] == 4.19  # log g
-    assert params['Fe_H_Fe_H'] == 0.16  # metallicity
+    assert params[param_key][0] == expected
 
 
 # Test Flux ratio to Mass
