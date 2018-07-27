@@ -228,12 +228,16 @@ def main(
     if full_table:
         print(companion_params)
         print(
-            r"Host name, star M_K, companion_mass, companion Teff, companion_Mk, K_ratio"
+            r"Host name, photometric K, parallax (mas), absolute M_K, companion_mass, companion Teff, companion_Mk, K_ratio"
         )
         print(
-            r"{0!s} & {1:0.2f} & {2:.1f} & {3:4.0f} & {4:.2f} & {5:.1f}\\\\n".format(
+            r"{0!s} & {1:0.2f} & {2:.2f} & {3:.2f} & {4:.1f} & {5:4.0f} & {6:.2f} & {7:.1f}\\\\n".format(
                 star_name,
                 star_params["FLUX_K"][0],
+                star_params["PLX_VALUE"][0],
+                absolute_magnitude(
+                    star_params["PLX_VALUE"].data[0], star_params["FLUX_K"].data[0]
+                ),
                 companion_mass,
                 companion_params["Teff"],
                 companion_params["Mk"],
