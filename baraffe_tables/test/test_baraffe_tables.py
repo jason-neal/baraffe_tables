@@ -326,9 +326,9 @@ def test_BDmass_parser():
     assert args.bands == ["All"]
     assert args.model == "2003"
     assert args.area_ratio is True
-    assert args.full_table == True
-    assert args.star_pars == True
-    assert args.age_interp == False
+    assert args.full_table is True
+    assert args.star_pars is True
+    assert args.age_interp is False
     sys.argv = org_sysargv
 
 
@@ -343,9 +343,9 @@ def test_ratio_parser():
     assert args.bands == ["H"]
     assert args.stellar_age == 5
     assert args.model == "2015"
-    assert args.full_table == False
-    assert args.star_pars == False
-    assert args.age_interp == False
+    assert args.full_table is False
+    assert args.star_pars is False
+    assert args.age_interp is False
     sys.argv = org_sysargv
 
 
@@ -359,9 +359,9 @@ def test_ratio_parser2():
     assert args.bands == ["H", "K"]
     assert args.stellar_age == 5
     assert args.model == "2015"
-    assert args.full_table == True
-    assert args.star_pars == True
-    assert args.age_interp == True
+    assert args.full_table is True
+    assert args.star_pars is True
+    assert args.age_interp is True
     sys.argv = org_sysargv
 
 
