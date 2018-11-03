@@ -28,7 +28,7 @@ install:
   - source activate test-environment
 
   - travis_retry  pip install -r requirements/requirements.txt
-  - travis_retry pip install -r requirements/test.txt
+  - travis_retry pip install -r requirements/requirements_dev.txt
 
   - python setup.py install
   
@@ -44,7 +44,7 @@ before_script:
 
 script:
   - pytest --cov=baraffe_tables/ --cov-report term-missing --durations 5
-  - coverage xml
+  - coverage xml -i
 
 after_success:
   - coveralls
