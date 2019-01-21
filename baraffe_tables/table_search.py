@@ -333,7 +333,7 @@ def baraffe_table_search(
 
     Parameters
     ----------
-    column: sr
+    column: str
         Dictionary of (band: magnitude) pairs.
     age: float
         Age of star/system (Gyr).

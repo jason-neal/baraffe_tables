@@ -1,18 +1,18 @@
 #!/usr/bin/env python
-"""Brown Dwarf mass lookup.
+"""Stellar mass lookup.
 
-Looks up the BD mass given its temperature, logg and age.
+Looks up the stellar mass given its temperature, logg and age.
 
 Inputs
 ------
 Temperature: str
-    Temperature of companion
+    Temperature.
 logg: float
-    Logg of companion
+    Logg.
 age: float
     Stellar Age. (Closest model is used)
 model: str
-    Choose between the 2003 and 2015 Baraffe modeling.
+    Choose between the 2003 and 2015 Baraffe modelling.
 
 """
 # TODO: Interpolate between tables?
@@ -35,11 +35,11 @@ def _parser() -> object:
     :returns: the args
     """
     parser = argparse.ArgumentParser(
-        description='Lookup BD mass from temperature.')
-    parser.add_argument('temp', help='Temperature of star/BD', type=float)
-    parser.add_argument('logg', help='Logg of star/BD', type=float)
+        description='Lookup companion mass from temperature.')
+    parser.add_argument('temp', help='Temperature of companion.', type=float)
+    parser.add_argument('logg', help='Logg of companion.', type=float)
     parser.add_argument('-p', '--plot', action="store_true",
-                        help='Plot the age-logg line', default='2003')
+                        help='Plot the age-logg line.', default='2003')
     parser.add_argument("-f", "--full_table", default=False, action="store_true",
                         help="Print all parameters for found companion.")
     return parser.parse_args()
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     if full_table:
         print(result)
 
-    print("Teff-logg BD mass")
+    print("Teff-logg companion mass")
     print("temp\t= {0:5.0f} K\nlogg\t= {1:4.02}\nage \t= {2:06.4f} Gyr\nmass\t= {3:5.01f} Mjup\n".format(*[
         result[key] for key in ("Teff", "g", "age", "M/Mjup")]))
 
