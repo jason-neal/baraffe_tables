@@ -1,6 +1,7 @@
 from setuptools import setup, find_packages
 from codecs import open
 import os
+import sys
 
 if sys.version < "3.6":
     sys.exit(
