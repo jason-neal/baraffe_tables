@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 from astropy.constants import M_jup, M_sun
 
-from baraffe_tables.BDmass_to_flux_ratio import (
+from baraffe_tables.mass_to_flux_ratio import (
     _parser as mass_parser,
     main as mass_main,
 )
@@ -15,7 +15,7 @@ from baraffe_tables.db_queries import (
     get_sweet_cat_temp,
     get_temperature,
 )
-from baraffe_tables.flux_ratio_to_BDmass import (
+from baraffe_tables.flux_ratio_to_mass import (
     _parser as ratio_parser,
     main as ratio_main,
 )
@@ -30,7 +30,7 @@ org_sysargv = sys.argv
 
 
 @pytest.mark.parametrize("area_ratio", [True, False])
-def test_BD_to_flux_runs(area_ratio):
+def test_companion_to_flux_runs(area_ratio):
     """Check it returns 0 (Runs normally).
 
     If there is no internet then an Exception is raised.
@@ -42,7 +42,7 @@ def test_BD_to_flux_runs(area_ratio):
     assert mass_main("HD30501", 90, 5, area_ratio=area_ratio) is 0
 
 
-def test_ratio_to_BD_runs():
+def test_ratio_to_companion_runs():
     """Check it returns 0 (Runs normally).
 
     If there is no internet then an Exception is raised.
@@ -340,7 +340,7 @@ def test_magnitude_table_search_errors(band, age_interp):
 
 
 # Need sys.argv fixture with teardown
-def test_BDmass_parser():
+def test_mass_parser():
     """Test argparse function using sys.argv."""
     sys.argv = "pytest HD30501 90 5 -a -f -s".split()
 
