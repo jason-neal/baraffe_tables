@@ -126,7 +126,7 @@ def interp_data_dicts(
 
     """
     assert (float(lower_age) < age) and (
-        float(upper_age) > age
+        age < float(upper_age)
     ), "age is not between lower_age and upper_age!"
     assert set(lower_data.keys()) == set(
         upper_data.keys()
@@ -204,7 +204,7 @@ def age_table(
     if (
         age_interp
         and (float(closest_age) != float(age))
-        and (age > float(modelages[0]))
+        and (float(modelages[0]) < age)
         and (age < float(modelages[-1]))
     ):
         # Find two closest tables, interp values to given age.

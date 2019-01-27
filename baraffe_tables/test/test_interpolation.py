@@ -16,12 +16,12 @@ from baraffe_tables.table_search import model_ages_03, model_ages_15
 def test_find_bounding_ages(age, model_ages):
     # Test on input first
     assert age < float(model_ages[-1])
-    assert age > float(model_ages[0])
+    assert float(model_ages[0]) < age
 
     lower_age, upper_age = find_bounding_ages(age, model_ages)
 
     assert float(lower_age) <= age
-    assert float(upper_age) > age
+    assert age < float(upper_age)
     assert isinstance(lower_age, str)
     assert isinstance(upper_age, str)
     assert lower_age in model_ages
@@ -34,7 +34,7 @@ def test_find_bounding_works_when_unsorted_ages_given(age, model_ages):
     random.shuffle(model_ages)
     lower_age, upper_age = find_bounding_ages(age, model_ages)
     assert float(lower_age) <= age
-    assert float(upper_age) > age
+    assert age < float(upper_age)
     assert lower_age in model_ages
     assert upper_age in model_ages
 
