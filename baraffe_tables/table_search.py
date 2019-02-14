@@ -146,7 +146,7 @@ def interp_data_dicts(
             result = data1
         else:
             ages = np.array([lower_age, upper_age])
-            data_in = np.vstack(data1, data2)
+            data_in = np.vstack((data1, data2))
 
             interp_function = interp1d(ages, data_in, axis=0)
             data_out = interp_function(age)
