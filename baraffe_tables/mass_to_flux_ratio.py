@@ -191,33 +191,25 @@ def main(
             logging.warning("Unable to calculate flux ratio for {} band".format(band))
 
     print("\nFlux ratios:")
-    for band in bands:
-        try:
-            value = flux_ratios[band]
-            print(
-                (
-                    "{0!s} band  companion/star Flux ratio = {2:5.4f}"
-                    " >>> star/companion Flux ratio = {1:4.4f}"
-                ).format(band, 1. / value, value)
-            )
-        except:
-            pass
+    for band, value in flux_ratios.items():
+        print(
+            (
+                "{0!s} band  companion/star Flux ratio = {2:5.4f}"
+                " >>> star/companion Flux ratio = {1:4.4f}"
+            ).format(band, 1. / value, value)
+        )
 
     # Noise ratio
     if noise:
         print("\nNoise ratios ratios:")
-        for band in bands:
-            try:
-                value = flux_ratios[band]  # Fa/Fb
-                # Nb/Na =  sqrt(2) * sqrt(Fa/Fb)
-                noise_ratio = np.sqrt(2) * np.sqrt(value)
-                print(
-                    "{0!s} band  Noise_companion / Noise_star  = {1:5.4f}".format(
-                        band, noise_ratio
-                    )
+        for band, value in flux_ratios.items():  # Fa/Fb
+            # Nb/Na =  sqrt(2) * sqrt(Fa/Fb)
+            noise_ratio = np.sqrt(2) * np.sqrt(value)
+            print(
+                "{0!s} band  Noise_companion / Noise_star  = {1:5.4f}".format(
+                    band, noise_ratio
                 )
-            except:
-                pass
+            )
 
     if area_ratio:
         # Compare to area ratio
