@@ -132,7 +132,7 @@ def interp_data_dicts(
         upper_data.keys()
     ), "Data dicts do not have the same keys."
     interp_data_dict = {}
-    for ii, key in enumerate(lower_data.keys()):
+    for key in lower_data.keys():
         x1, x2 = float(lower_age), float(upper_age)
         data1, data2 = lower_data[key], upper_data[key]
 
