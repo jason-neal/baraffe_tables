@@ -15,7 +15,6 @@ age: float
     Stellar Age. (Closest model is used)
 
 """
-from __future__ import division, print_function
 
 import argparse
 import sys

@@ -16,7 +16,6 @@ model: str
 
 """
 # TODO: Interpolate between tables?
-from __future__ import division, print_function
 
 import argparse
 import sys
