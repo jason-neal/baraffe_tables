@@ -125,15 +125,16 @@ def interp_data_dicts(
     (lower_age < age) and (upper_age > age)
 
     """
-    assert (float(lower_age) < age) and (
-        age < float(upper_age)
+
+    lower_age, upper_age = float(lower_age), float(upper_age)
+    assert (lower_age < age) and (
+        age < upper_age
     ), "age is not between lower_age and upper_age!"
     assert set(lower_data.keys()) == set(
         upper_data.keys()
     ), "Data dicts do not have the same keys."
     interp_data_dict = {}
     for key in lower_data.keys():
-        x1, x2 = float(lower_age), float(upper_age)
         data1, data2 = lower_data[key], upper_data[key]
 
         while len(data1) != len(data2):
