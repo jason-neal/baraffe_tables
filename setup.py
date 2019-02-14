@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from codecs import open
+import codecs
 import os
 import sys
 
@@ -12,10 +12,10 @@ if sys.version < "3.6":
 
 base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)))
 
-with open('requirements/requirements.txt') as f:
+with codecs.open('requirements/requirements.txt') as f:
     requirements = f.read().splitlines()
 
-with open(os.path.join(base_dir, "README.md")) as f:
+with codecs.open(os.path.join(base_dir, "README.md")) as f:
     long_description = f.read()
 
 setup(
