@@ -145,14 +145,14 @@ def interp_data_dicts(
         if np.all(data1 == data2):
             result = data1
         else:
-            # Interpolate each value 1 by one (Is there a vectorized way to do this?)
             ages = np.array([lower_age, upper_age])
-            data_in = vstack(data1, data2)
+            data_in = np.vstack(data1, data2)
 
-            interp_function = interp1d(ages, data, axis=0)
+            interp_function = interp1d(ages, data_in, axis=0)
             data_out = interp_function(age)
+            result = np.round(data_out, 3)
 
-        interp_data_dict[key] = np.round(data_out, 3)
+        interp_data_dict[key] = result
     return interp_data_dict
 
 
