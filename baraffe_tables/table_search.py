@@ -4,6 +4,7 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import pkg_resources
+from scipy.interpolate import interp1d
 
 # Table model details
 model_ages_03 = [
@@ -145,18 +146,13 @@ def interp_data_dicts(
             result = data1
         else:
             # Interpolate each value 1 by one (Is there a vectorized way to do this?)
-            result = [
-                round(np.interp(age, [x1, x2], [d1, d2]), 3)
-                for d1, d2 in zip(data1, data2)
-            ]
+            ages = np.array([lower_age, upper_age])
+            data_in = vstack(data1, data2)
 
-        for x, y, z in zip(data1, result, data2):
-            # Check between original values
-            assert (np.all(x <= y) and np.all(y <= z)) or (
-                np.all(z <= y) and np.all(y <= x)
-            ), "Interpolated value not between initial values."
+            interp_function = interp1d(ages, data, axis=0)
+            data_out = interp_function(age)
 
-        interp_data_dict[key] = np.asarray(result)
+        interp_data_dict[key] = np.round(data_out, 3)
     return interp_data_dict
 
 
