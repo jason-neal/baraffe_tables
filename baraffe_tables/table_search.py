@@ -277,7 +277,7 @@ def mass_table_search(
         Companion parameters from Baraffe table, interpolated to the provided mass.
 
     """
-    model_data, cols, __ = age_table(age, model=model, age_interp=age_interp)
+    model_data, __, __ = age_table(age, model=model, age_interp=age_interp)
 
     ref_val = companion_mass
     ref_col = "M/Ms"
