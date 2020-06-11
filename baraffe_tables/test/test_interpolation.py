@@ -55,5 +55,5 @@ def test_table_interpolation_in_middle(lower, upper):
     expected = {"a": np.array([2.5, 3.5, 4.5, 5.5, 6.5]), "b": np.array([30., 40., 50., 60.])}
     result = interp_data_dicts(age, lower, dict_lower, upper, dict_upper)
 
-    for key in expected.keys():
-        assert np.allclose(result[key], expected[key])
+    for key, value in expected.items():
+        assert np.allclose(result[key], value)

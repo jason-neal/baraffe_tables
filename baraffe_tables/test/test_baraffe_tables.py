@@ -285,9 +285,9 @@ def test_calculate_comp_magnitude(mag, ratio, result):
 
 def test_mag_table_search_band_fail(age_interp):
     """One one band value is allowed."""
-    magnitudes = {"H": 1, "J": 4, "K": 5}
-
     with pytest.raises(ValueError):
+        magnitudes = {"H": 1, "J": 4, "K": 5}
+
         magnitude_table_search(
             magnitudes, age=5, band=["H", "J", "K"], model="2003", age_interp=age_interp
         )

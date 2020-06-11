@@ -42,9 +42,7 @@ def get_stellar_params(star_name: str) -> Any:
                                     'fluxdata(V)', 'fluxdata(J)', 'fluxdata(H)', 'fluxdata(K)',
                                     'fe_h')
 
-    result_table = customSimbad.query_object(star_name)
-
-    return result_table
+    return customSimbad.query_object(star_name)
 
 
 def get_sweet_cat_temp(star_name: str) -> Union[float, int]:
@@ -96,7 +94,7 @@ def get_temperature(star_name: str, star_params: Optional[Any] = None) -> float:
     if "Fe_H_Teff" in star_params.keys():  # need table and interpolate to this B-V
         # print("star_params['Fe_H_Teff'] =", star_params["Fe_H_Teff"])
         teff = star_params["Fe_H_Teff"][0]
-        if teff == 0 or teff == [0]:
+        if teff in [0, [0]]:
             # No teff given by SIMBAD
             print("SIMBAD Temperature was zero.")
             teff = None
