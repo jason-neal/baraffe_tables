@@ -1,6 +1,6 @@
 argparse==1.4.0
 astropy==4.3.1
-astroquery==0.3.10
+astroquery==0.4.3
 numpy==1.17.3
 PyAstronomy==0.13.0
 pandas==0.25.3
