@@ -135,7 +135,7 @@ def interp_data_dicts(
         upper_data.keys()
     ), "Data dicts do not have the same keys."
     interp_data_dict = {}
-    for key in lower_data.keys():
+    for key in lower_data:
         data1, data2 = lower_data[key], upper_data[key]
 
         while len(data1) != len(data2):
@@ -233,10 +233,7 @@ def age_table(
         model_data = model_age_table(base_name, model_age, skiprows=skiprows)
 
         # Turn into Dict of values
-        data_dict = {}
-        for i, col in enumerate(cols):
-            data_dict[col] = model_data[i]
-
+        data_dict = {col: model_data[i] for i, col in enumerate(cols)}
     return data_dict, cols, model_age
 
 
@@ -356,8 +353,7 @@ def baraffe_table_search(
             )
         )
 
-    found_row = table_interpolation(found_table, column, value)
-    return found_row
+    return table_interpolation(found_table, column, value)
 
 
 def table_interpolation(
@@ -386,10 +382,8 @@ def table_interpolation(
     """
     column_reversed = False
     result_parameters = {}
-    for key in data.keys():
+    for key, y_data in data.items():
         x_data = data[ref_col]
-        y_data = data[key]
-
         if x_data[-1] < x_data[0]:
             # Reverse data if not increasing.
             x_data = x_data[::-1]

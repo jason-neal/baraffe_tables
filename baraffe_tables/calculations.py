@@ -28,8 +28,7 @@ def flux_mag_ratio(mag1: float, mag2: float) -> float:
         flux/contrast ratio between the two magnitudes.
 
     """
-    flux_ratio = 10 ** (-0.4 * (mag1 - mag2))
-    return flux_ratio
+    return 10 ** (-0.4 * (mag1 - mag2))
 
 
 def calculate_stellar_radius(star_params: Any) -> float:
@@ -81,8 +80,7 @@ def calculate_companion_magnitude(star_mag: float, flux_ratio: float) -> float:
 
     """
 
-    magnitude = star_mag - 2.5 * np.log10(flux_ratio)
-    return magnitude
+    return star_mag - 2.5 * np.log10(flux_ratio)
 
 
 def distance_modulus(d: float):
@@ -97,8 +95,7 @@ def distance_modulus(d: float):
     mu: float
         m-M distance modulus
     """
-    mu = 5 * np.log10(d) - 5
-    return mu
+    return 5 * np.log10(d) - 5
 
 
 def absolute_magnitude(parallax, m):
@@ -116,8 +113,7 @@ def absolute_magnitude(parallax, m):
     """
     d = 1. / (parallax * 1e-3)  # Conversion to arcsecond before deriving distance
     mu = distance_modulus(d)
-    M = m - mu
-    return M
+    return m - mu
 
 
 def apparent_magnitude(parallax, M):
@@ -134,5 +130,4 @@ def apparent_magnitude(parallax, M):
     """
     d = 1. / (parallax * 1e-3)  # Conversion to arcsecond before deriving distance
     mu = distance_modulus(d)
-    m = M + mu
-    return m
+    return M + mu
