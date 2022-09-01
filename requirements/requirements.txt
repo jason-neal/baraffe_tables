@@ -4,4 +4,4 @@ astroquery==0.4.6
 numpy==1.23.2
 PyAstronomy==0.18.0
 pandas==1.4.4
-scipy==1.8.0
+scipy==1.9.1
